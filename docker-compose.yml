@@ -1,0 +1,70 @@
+version: "3.5"
+
+services:
+
+  mongo:
+    image: mongo:4.4
+    container_name: atc-mongo
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo_data:/data/db
+    environment:
+      - MONGO_INITDB_DATABASE=orion
+    networks:
+      - atc-network
+
+  orion:
+    image: fiware/orion-ld
+    container_name: atc-orion
+    ports:
+      - "1026:1026"
+    command: -dbhost mongo -logLevel DEBUG
+    depends_on:
+      - mongo
+    networks:
+      - atc-network
+    environment:
+      - ORION_LOG_LEVEL=DEBUG
+
+  django_backend:
+    build:
+      context: ./ACT
+      dockerfile: Dockerfile
+    container_name: atc-django
+    ports:
+      - "8000:8000"
+    depends_on:
+      - orion
+      - mongo
+    networks:
+      - atc-network
+    environment:
+      - DJANGO_SETTINGS_MODULE=ACT.settings
+      - ORION_URI=http://orion:1026
+      - NEO4J_URI=bolt://neo4j:7687
+      - NEO4J_USER=neo4j
+      - NEO4J_PASSWORD=atc-neo4j
+
+  neo4j:
+    image: neo4j:4.4
+    container_name: atc-neo4j
+    ports:
+      - "7474:7474"
+      - "7687:7687"
+    volumes:
+      - neo4j_data:/data
+    environment:
+      - NEO4J_AUTH=neo4j/atc-neo4j
+      - NEO4J_dbms_memory_pagecache_size=512m
+      - NEO4J_dbms_memory_heap_max__size=1G
+    networks:
+      - atc-network
+
+volumes:
+  mongo_data:
+  neo4j_data:
+
+networks:
+  atc-network:
+    driver: bridge

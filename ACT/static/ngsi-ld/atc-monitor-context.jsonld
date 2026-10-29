@@ -1,0 +1,143 @@
+{
+  "@context": [
+    "/static/ngsi-ld/ngsi-ld-core-context.jsonld",
+    {
+      "atc": "https://uri.example.org/atc-monitor/",
+      "Device": "atc:Device",
+      "DeviceStatus": "atc:DeviceStatus",
+      "Alarm": "atc:Alarm",
+      "VHFDevice": "atc:VHFDevice",
+      "ILSDevice": "atc:ILSDevice",
+      "deviceId": {
+        "@id": "atc:deviceId",
+        "@type": "Property"
+      },
+      "deviceType": {
+        "@id": "atc:deviceType",
+        "@type": "Property"
+      },
+      "deviceModel": {
+        "@id": "atc:deviceModel",
+        "@type": "Property"
+      },
+      "location": {
+        "@id": "atc:location",
+        "@type": "Property"
+      },
+      "manufacturer": {
+        "@id": "atc:manufacturer",
+        "@type": "Property"
+      },
+      "installTime": {
+        "@id": "atc:installTime",
+        "@type": "TemporalProperty"
+      },
+      "protocolVersion": {
+        "@id": "atc:protocolVersion",
+        "@type": "Property"
+      },
+      "onlineStatus": {
+        "@id": "atc:onlineStatus",
+        "@type": "Property"
+      },
+      "deviceStatus": {
+        "@id": "atc:deviceStatus",
+        "@type": "Property"
+      },
+      "alarmFlag": {
+        "@id": "atc:alarmFlag",
+        "@type": "Property"
+      },
+      "powerVoltage": {
+        "@id": "atc:powerVoltage",
+        "@type": "Property"
+      },
+      "deviceTemperature": {
+        "@id": "atc:deviceTemperature",
+        "@type": "Property"
+      },
+      "signalStrength": {
+        "@id": "atc:signalStrength",
+        "@type": "Property"
+      },
+      "linkStatus": {
+        "@id": "atc:linkStatus",
+        "@type": "Property"
+      },
+      "bitErrorRate": {
+        "@id": "atc:bitErrorRate",
+        "@type": "Property"
+      },
+      "locGuidanceDeviation": {
+        "@id": "atc:locGuidanceDeviation",
+        "@type": "Property"
+      },
+      "gsGuidanceDeviation": {
+        "@id": "atc:gsGuidanceDeviation",
+        "@type": "Property"
+      },
+      "signalPower": {
+        "@id": "atc:signalPower",
+        "@type": "Property"
+      },
+      "antennaSwr": {
+        "@id": "atc:antennaSwr",
+        "@type": "Property"
+      },
+      "collectTime": {
+        "@id": "atc:collectTime",
+        "@type": "TemporalProperty"
+      },
+      "hasStatus": {
+        "@id": "atc:hasStatus",
+        "@type": "@id"
+      },
+      "belongsTo": {
+        "@id": "atc:belongsTo",
+        "@type": "@id"
+      },
+      "NORMAL": "atc:NORMAL",
+      "ALARM": "atc:ALARM",
+      "OFFLINE": "atc:OFFLINE",
+      "CONNECTED": "atc:CONNECTED",
+      "DISCONNECTED": "atc:DISCONNECTED",
+      "PredictionResult": "atc:PredictionResult",
+      "predictedValue": {
+        "@id": "atc:predictedValue",
+        "@type": "Property"
+      },
+      "predictionTime": {
+        "@id": "atc:predictionTime",
+        "@type": "TemporalProperty"
+      },
+      "predictionHorizon": {
+        "@id": "atc:predictionHorizon",
+        "@type": "Property"
+      },
+      "confidenceScore": {
+        "@id": "atc:confidenceScore",
+        "@type": "Property"
+      },
+      "errorMargin": {
+        "@id": "atc:errorMargin",
+        "@type": "Property"
+      },
+      "thresholdValue": {
+        "@id": "atc:thresholdValue",
+        "@type": "Property"
+      },
+      "isAboveThreshold": {
+        "@id": "atc:isAboveThreshold",
+        "@type": "Property"
+      },
+      "refDevice": {
+        "@id": "atc:refDevice",
+        "@type": "@id"
+      },
+      "refRule": {
+        "@id": "atc:refRule",
+        "@type": "@id"
+      }
+    }
+  ]
+}

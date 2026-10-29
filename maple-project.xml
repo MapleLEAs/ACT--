@@ -1,0 +1,2322 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<project name="Cpp-Deep-Dive">
+  <file name="algorithm.hpp" path="include/maple/algorithm.hpp">
+    <content><![CDATA[#ifndef MAPLE_ALGORITHM_HPP
+#define MAPLE_ALGORITHM_HPP
+
+#include &quot;maple/iterator.hpp&quot;
+#include &quot;maple/util.hpp&quot;
+
+namespace maple{
+	// ���޸�����
+	//find:���ҵ�һ������value��Ԫ��
+	template &lt;typename InputIterator, typename T&gt;
+	InputIterator find(InputIterator first,InputIterator last,const T&amp;value){
+		while(first!=last){
+			if(*first==value)return first;
+			++first;
+		}
+		return last;
+	}
+	
+	//find_if:���ҵ�һ������pred��Ԫ��
+	template&lt;typename InputIterator,typename Predicate&gt;
+	InputIterator find_if(InputIterator first,InputIterator last,Predicate pred){
+		while(first!=last){
+			if(pred(*first))return first;
+			++first;
+		}
+		return last;
+	}
+	
+	//count:��������value��Ԫ�ظ���
+	template &lt;typename InputIterator, typename T&gt;
+	typename iterator_traits&lt;InputIterator&gt;::difference_type
+	count(InputIterator first,InputIterator last,const T&amp;value){
+		typename iterator_traits&lt;InputIterator&gt;::difference_type n = 0;
+	    while (first != last) {
+	        if (*first == value) ++n;
+	        ++first;
+	    }
+	    return n;
+	}
+	
+	//equal:�ж����������Ƿ����
+	template &lt;typename InputIterator1, typename InputIterator2&gt;
+	bool equal(InputIterator1 first1, InputIterator1 last1, InputIterator2 first2) {
+	    while (first1 != last1) {
+	        if (*first1 != *first2) return false;
+	        ++first1; ++first2;
+	    }
+	    return true;
+	}
+	
+	// �޸�����
+	// copy����������
+	template &lt;typename InputIterator, typename OutputIterator&gt;
+	OutputIterator copy(InputIterator first, InputIterator last, OutputIterator result) {
+	    while (first != last) {
+	        *result = *first;
+	        ++first; ++result;
+	    }
+	    return result;
+	}
+	
+	//fill:��value�������
+	template &lt;typename ForwardIterator, typename T&gt;
+	void fill(ForwardIterator first,ForwardIterator last,const T&amp; value){
+		while(first!=last){
+			*first=value;
+			++first;
+		}
+	}
+	
+	//reverse:��ת���� 
+	template &lt;typename BidirectionalIterator&gt;
+	void reverse(BidirectionalIterator first, BidirectionalIterator last){
+		while(first!=last&amp;&amp;first!=--last){
+			maple::swap(*first,*last);
+			++first;
+		}
+	}
+	
+	//���ֲ���(Ҫ������)
+	//lower_bound:��һ�� &gt;= value ��λ��
+	template &lt;typename ForwardIterator, typename T&gt;
+	ForwardIterator lower_bound(ForwardIterator first, ForwardIterator last, const T&amp; value){
+		auto len=maple::distance(first,last);
+		while(len&gt;0){
+			auto half=len/2;
+			auto mid=first;
+			maple::advance(mid,half);
+			if(*mid&lt;value){
+				first=++mid;
+				len-=half+1; 
+			}else{
+				len=half;
+			}
+		}
+		return first;
+	}
+	
+	//upper_bound:��һ��&gt;value��λ��
+	template &lt;typename ForwardIterator, typename T&gt;
+	ForwardIterator upper_bound(ForwardIterator first, ForwardIterator last, const T&amp; value){
+		auto len = maple::distance(first, last);
+	    while (len &gt; 0) {
+	        auto half = len / 2;
+	        auto mid = first;
+	        maple::advance(mid, half);
+	        if (value &lt; *mid) {
+	            len = half;
+	        } else {
+	            first = ++mid;
+	            len -= half + 1;
+	        }
+	    }
+	    return first;
+	}
+	
+	//binary_search:�Ƿ����
+	template &lt;typename ForwardIterator, typename T&gt;
+	bool binary_search(ForwardIterator first, ForwardIterator last, const T&amp; value) {
+	    auto it = maple::lower_bound(first, last, value);
+	    return it != last &amp;&amp; !(value &lt; *it);
+	}
+	
+	//�Ѳ���
+	//push_heap:����Ԫ�غ����
+	template &lt;typename RandomIterator&gt;
+	void push_heap(RandomIterator first, RandomIterator last) {
+	    if (last - first &lt; 2) return;
+	    auto child = (last - first) - 1;
+	    while (child &gt; 0) {
+	        auto parent = (child - 1) / 2;
+	        if (*(first + child) &lt;= *(first + parent)) break;
+	        maple::swap(*(first + child), *(first + parent));
+	        child = parent;
+	    }
+	}
+	
+	// pop_heap�������Ѷ������
+	template &lt;typename RandomIterator&gt;
+	void pop_heap(RandomIterator first, RandomIterator last){
+		if(last-first&lt;2)return ;
+		--last;
+		maple::swap(*first,*last);
+		auto len=last-first;
+		auto parent=0;
+		while(true){
+			auto child=2*parent+1;
+			if(child&gt;=len)break;
+			if (child + 1 &lt; len &amp;&amp; *(first + child) &lt; *(first + child + 1)) ++child;
+	        if (*(first + parent) &gt;= *(first + child)) break;
+	        maple::swap(*(first + parent), *(first + child));
+	        parent = child;
+		} 
+	}
+	
+	//make_heap������
+	template &lt;typename RandomIterator&gt;
+	void make_heap(RandomIterator first, RandomIterator last) {
+	    if (last - first &lt; 2) return;
+	    auto len = last - first;
+	    for (auto i = len / 2 - 1; i &gt;= 0; --i) {
+	        auto parent = i;
+	        while (true) {
+	            auto child = 2 * parent + 1;
+	            if (child &gt;= static_cast&lt;decltype(len)&gt;(len)) break;
+	            if (child + 1 &lt; static_cast&lt;decltype(len)&gt;(len) &amp;&amp; *(first + child) &lt; *(first + child + 1)) ++child;
+	            if (*(first + parent) &gt;= *(first + child)) break;
+	            maple::swap(*(first + parent), *(first + child));
+	            parent = child;
+	        }
+	    }
+	}
+	
+	// sort_heap��������
+	template &lt;typename RandomIterator&gt;
+	void sort_heap(RandomIterator first, RandomIterator last) {
+	    while (last - first &gt; 1) {
+	        pop_heap(first, last--);
+	    }
+	}
+}//namespace maple
+
+#endif
+]]></content>
+  </file>
+  <file name="allocator.hpp" path="include/maple/allocator.hpp">
+    <content><![CDATA[#ifndef MAPLE_ALLOCATOR_HPP
+#define MAPLE_ALLOCATOR_HPP
+
+#include&lt;new&gt;
+#include &quot;maple/util.hpp&quot;
+
+namespace maple{
+	template&lt;typename T&gt;
+	class allocator{
+		public:
+			using value_type=T;
+			
+			allocator()=default;
+			
+			T*allocate(size_t n){
+				return static_cast&lt;T*&gt;(::operator new(n*sizeof(T)));
+			}
+			void deallocate(T* p,size_t){
+				::operator delete(p);
+			}	
+	};
+}//namespace maple
+
+#endif
+]]></content>
+  </file>
+  <file name="construct.hpp" path="include/maple/construct.hpp">
+    <content><![CDATA[#ifndef MAPLE_CONSTRUCT_HPP
+#define MAPLE_CONSTRUCT_HPP
+
+#include &lt;new&gt;
+#include &quot;maple/type_traits.hpp&quot;
+#include &quot;maple/util.hpp&quot;
+#include &quot;maple/iterator.hpp&quot;
+
+namespace maple {
+
+		// ���ѷ����ڴ��Ϲ������
+		template &lt;typename T, typename... Args&gt;
+		void construct(T* p, Args&amp;&amp;... args) {
+		    ::new (p) T(maple::forward&lt;Args&gt;(args)...);
+		}
+		
+		// destroy �� tag dispatch
+		namespace detail {
+		    template &lt;typename T&gt;
+		    void destroy_impl(T* p, true_type) {}
+		
+		    template &lt;typename T&gt;
+		    void destroy_impl(T* p, false_type) { p-&gt;~T(); }
+		}
+		
+		// ��������
+		template &lt;typename T&gt;
+		void destroy(T* p) {
+		    detail::destroy_impl(p, typename is_trivially_destructible&lt;T&gt;::type());
+		}
+		
+		// ��������
+		template &lt;typename ForwardIterator&gt;
+		void destroy(ForwardIterator first, ForwardIterator last) {
+		    for (; first != last; ++first) {
+		        destroy(&amp;(*first));
+		    }
+		}
+
+} // namespace maple
+
+#endif
+]]></content>
+  </file>
+  <file name="deque.hpp" path="include/maple/deque.hpp">
+    <content><![CDATA[#ifndef MAPLE_DEQUE_HPP
+#define MAPLE_DEQUE_HPP
+
+#include &lt;cstddef&gt;
+#include &quot;maple/iterator.hpp&quot;
+#include &quot;maple/allocator.hpp&quot;
+#include &quot;maple/construct.hpp&quot;
+
+namespace maple{
+	template &lt;typename T&gt;
+	struct deque_iterator{
+		using value_type=T;
+		using pointer=T*;
+		using reference=T&amp;;
+		using difference_type=std::ptrdiff_t;
+		using iterator_category=random_access_iterator_tag; 
+		
+		T*cur;
+		T*first;
+		T*last;
+		T**node;
+		
+		//Ĭ�Ϲ���
+		deque_iterator() : cur(nullptr), first(nullptr), last(nullptr), node(nullptr) {}
+		reference operator*()const{
+			return *cur;
+		}
+		pointer operator-&gt;()const{
+			return cur;
+		}
+		
+		//ǰ��++
+		deque_iterator&amp; operator++(){
+			++cur;
+			if(cur==last){
+				++node;
+				first=*node;
+				last=first+buffer_size();
+				cur=first;
+			}
+			return *this;
+		} 
+		// ���� ++
+	    deque_iterator operator++(int) {
+	        deque_iterator tmp = *this;
+	        ++(*this);
+	        return tmp;
+	    }
+	    
+	    // ǰ�� --
+	    deque_iterator&amp; operator--() {
+	        if (cur == first) { 
+	            --node;         
+	            first = *node;
+	            last = first + buffer_size();
+	            cur = last - 1;
+	        } else {
+	            --cur;
+	        }
+	        return *this;
+	    }
+	
+	    // ���� --
+	    deque_iterator operator--(int) {
+	        deque_iterator tmp = *this;
+	        --(*this);
+	        return tmp;
+	    }
+	    
+	    static constexpr size_t buffer_size(){
+	    	return sizeof(T)&lt;256?4096/sizeof(T):16;
+		}
+		bool operator==(const deque_iterator&amp; other)const{return cur==other.cur;}
+		bool operator!=(const deque_iterator&amp; other)const{return cur!=other.cur;}
+		// operator+=
+	    deque_iterator&amp; operator+=(difference_type n) {
+	        difference_type offset = n + (cur - first);
+	        if (offset &gt;= 0 &amp;&amp; offset &lt; static_cast&lt;difference_type&gt;(buffer_size())) {
+	            cur += n;
+	        } else {
+	            difference_type node_offset = offset &gt; 0
+	                ? offset / static_cast&lt;difference_type&gt;(buffer_size())
+	                : -((-offset - 1) / static_cast&lt;difference_type&gt;(buffer_size())) - 1;
+	            node += node_offset;
+	            first = *node;
+	            last  = first + buffer_size();
+	            cur   = first + (offset - node_offset * static_cast&lt;difference_type&gt;(buffer_size()));
+	        }
+	        return *this;
+	    }
+	
+	    // operator+
+	    deque_iterator operator+(difference_type n) const {
+	        deque_iterator tmp = *this;
+	        return tmp += n;
+	    }
+	
+	    // operator-=
+	    deque_iterator&amp; operator-=(difference_type n) {
+	        return *this += -n;
+	    }
+	
+	    // operator-
+	    deque_iterator operator-(difference_type n) const {
+	        deque_iterator tmp = *this;
+	        return tmp -= n;
+	    }
+	
+	    // operator- (�������������)
+	    difference_type operator-(const deque_iterator&amp; other) const {
+	        return static_cast&lt;difference_type&gt;(buffer_size()) * (node - other.node)
+	               + (cur - first) - (other.cur - other.first);
+	    }
+	
+	    // operator[]
+	    reference operator[](difference_type n) const {
+	        return *(*this + n);
+	    }
+	
+	    // operator&lt;
+	    bool operator&lt;(const deque_iterator&amp; other) const {
+	        return node == other.node ? cur &lt; other.cur : node &lt; other.node;
+	    }
+	};
+	
+	//deque�Ǽ�
+	template &lt;typename T&gt;
+	class deque {
+		public:
+			using value_type=T;
+			using iterator=deque_iterator&lt;T&gt;;
+			using reference=T&amp;;
+			using const_reference = const T&amp;;
+			using size_type=size_t;
+			
+			deque()
+			:map_(nullptr)
+			,map_size_(0)
+			,start_()
+			,finish_()
+			{
+				init_map(1);
+			}
+			
+			~deque(){
+				if (!empty()) {
+			        for (auto it = begin(); it != end(); ++it) {
+			            destroy(it.cur);
+			        }
+			    }
+				deallocate_map();
+			}
+			
+			//����
+			size_t size()const{return finish_-start_;}
+			bool empty()const{
+				return start_==finish_;
+			} 
+			
+			//����
+			reference front(){
+				return *start_;
+			}
+			const_reference front() const { return *start_; }
+			reference back(){
+				return *(finish_-1);
+			}
+			const_reference back()  const { return *(finish_ - 1); }
+			
+			reference operator[](size_t n){
+				return start_[n];
+			}
+			
+			//������
+			iterator begin(){
+				return start_;
+			} 
+			iterator end(){
+				return finish_;
+			}
+			
+			//�޸�
+			void push_back(const T&amp;val){
+				if(finish_.cur+1==finish_.last){
+					reserve_map_back();
+					new_node_at_back();
+				}
+				construct(finish_.cur,val);
+				++finish_;
+			}
+			
+			void push_front(const T&amp; val){
+				if(start_.cur==start_.first){
+					reserve_map_front();
+            		new_node_at_front();
+				}
+				--start_;
+				construct(start_.cur,val);
+			}
+			
+			void pop_back(){
+				--finish_;
+				destroy(finish_.cur);
+			}
+			
+			void pop_front(){
+				destroy(start_.cur);
+				++start_;
+			}
+			
+			void clear(){
+				for(auto it=begin();it!=end();++it){
+					destroy(it.cur);
+				}
+				start_=iterator();
+				finish_=iterator();
+			}
+		private:
+			T**map_;
+			size_t map_size_;
+			iterator start_;
+			iterator finish_;
+			allocator&lt;T&gt;data_alloc_;
+			allocator&lt;T*&gt;map_alloc_;
+			static constexpr size_t buf_sz=deque_iterator&lt;T&gt;::buffer_size();
+			
+			void init_map(size_t n){
+				map_size_=8;
+				while(map_size_&lt;n+2)map_size_*=2;
+				map_=map_alloc_.allocate(map_size_);
+				
+				T** nstart=map_+(map_size_-n)/2;
+				T** nfinish=nstart+n;
+				
+				for(T** p=nstart;p&lt;nfinish;++p){
+					*p=data_alloc_.allocate(buf_sz);
+				} 
+				
+				start_.node=nstart;
+				start_.first=*nstart;
+				start_.last=*nstart+buf_sz;
+				start_.cur=*nstart;
+				
+				finish_.node=nfinish-1;
+				finish_.first=*(nfinish-1);
+				finish_.last=*(nfinish-1)+buf_sz;
+				finish_.cur=*(nfinish-1);
+			}
+			
+			// �ͷ����л��������п���
+			void deallocate_map(){
+				if(map_&amp;&amp; start_.node &amp;&amp; finish_.node){
+					for(T** p=start_.node;p&lt;=finish_.node;++p){
+						data_alloc_.deallocate(*p,buf_sz);
+					}
+					map_alloc_.deallocate(map_,map_size_);
+				}
+			}
+			
+			void reserve_map_back(){
+				if(finish_.node+1==map_+map_size_){
+					reallocate_map(map_size_*2);
+				}
+			}
+			
+			void reserve_map_front() {
+		        if (start_.node == map_) {
+		            reallocate_map(map_size_ * 2);
+		        }
+		    }
+			void reallocate_map(size_t new_size){
+				T** new_map= map_alloc_.allocate(new_size);
+		        T** nstart = new_map + (new_size - size()) / 2;
+		        T** old_start= start_.node;
+		
+		        for (T** p = nstart,**q = old_start; q &lt;= finish_.node; ++p, ++q) {
+		            *p = *q;
+		        }
+		
+		        map_alloc_.deallocate(map_, map_size_);
+		        map_=new_map;
+		        map_size_=new_size;
+		
+		        start_.node=nstart;
+		        finish_.node=nstart + (finish_.node - old_start);
+			}
+			void new_node_at_back(){
+				*(finish_.node + 1) = data_alloc_.allocate(buf_sz);
+		        ++finish_;
+		        finish_.first = *finish_.node;
+		        finish_.last  = finish_.first + buf_sz;
+		        finish_.cur   = finish_.first;
+			}
+			void new_node_at_front(){
+				*(start_.node - 1) = data_alloc_.allocate(buf_sz);
+		        --start_;
+		        start_.first = *start_.node;
+		        start_.last  = start_.first + buf_sz;
+		        start_.cur   = start_.last - 1;
+			}
+			 
+	};
+}//namespace
+
+#endif
+]]></content>
+  </file>
+  <file name="hashtable.hpp" path="include/maple/hashtable.hpp">
+    <content><![CDATA[#ifndef MAPLE_HASHTABLE_HPP
+#define MAPLE_HASHTABLE_HPP
+
+#include &lt;vector&gt;
+#include &lt;cstddef&gt;
+#include &quot;maple/allocator.hpp&quot;
+#include &quot;maple/construct.hpp&quot;
+#include &quot;maple/iterator.hpp&quot;
+#include &quot;maple/util.hpp&quot;
+
+namespace maple{
+	// �������Ͱ����
+	static const size_t prime_list[] = {
+	    53, 97, 193, 389, 769,
+	    1543, 3079, 6151, 12289, 24593,
+	    49157, 98317, 196613, 393241, 786433,
+	    1572869, 3145739, 6291469, 12582917, 25165843
+	};
+	
+	template &lt;typename T&gt;
+	struct hashtable_node {
+	    T value;
+	    hashtable_node* next;
+	    hashtable_node(const T&amp; val) : value(val), next(nullptr) {}
+	};
+	
+	template &lt;typename T&gt;
+	struct hashtable_iterator{
+		using value_type=T;
+	    using pointer=T*;
+	    using reference=T&amp;;
+	    using difference_type=std::ptrdiff_t;
+	    using iterator_category=forward_iterator_tag;
+	
+	    hashtable_node&lt;T&gt;* node;
+	    hashtable_node&lt;T&gt;** bucket;
+	    hashtable_node&lt;T&gt;** bucket_end;
+	    
+	    hashtable_iterator():node(nullptr), bucket(nullptr), bucket_end(nullptr) {}
+	    
+	    reference operator*()const { return node-&gt;value; }
+    	pointer operator-&gt;()const { return &amp;(node-&gt;value); }
+    	
+    	// ǰ�� ++
+	    hashtable_iterator&amp; operator++() {
+	        if (node-&gt;next) {
+	            node = node-&gt;next;
+	        } else {
+	            ++bucket;
+	            while (bucket != bucket_end &amp;&amp; *bucket == nullptr) ++bucket;
+	            node = (bucket == bucket_end) ? nullptr : *bucket;
+	        }
+	        return *this;
+	    }
+	
+	    // ���� ++
+	    hashtable_iterator operator++(int) {
+	        auto tmp = *this;
+	        ++(*this);
+	        return tmp;
+	    }
+	
+	    // ����ж�
+	    bool operator==(const hashtable_iterator&amp; other) const {
+	        return node == other.node;
+	    }
+	
+	    // �����ж�
+	    bool operator!=(const hashtable_iterator&amp; other) const {
+	        return node != other.node;
+	    }
+	};
+	
+	template &lt;typename Key, typename Hash = std::hash&lt;Key&gt;, typename KeyEqual = std::equal_to&lt;Key&gt;&gt;
+	class hashtable{
+		public:
+			using iterator=hashtable_iterator&lt;Key&gt;;
+			
+			hashtable() : bucket_count_(53), size_(0) {
+		        buckets_.resize(bucket_count_, nullptr);
+		    }
+		
+		    ~hashtable() { clear(); }
+		    
+		    size_t size()const{return size_;}
+		    
+		    void insert(const Key&amp; key) {
+		        size_t idx = hash_(key) % bucket_count_;
+		        auto* node = new hashtable_node&lt;Key&gt;(key);
+		        node-&gt;next = buckets_[idx];
+		        buckets_[idx] = node;
+		        ++size_;
+		
+		        if (size_ &gt; bucket_count_) rehash();
+		    }
+		    
+		    iterator find(const Key&amp; key) {
+		        size_t idx = hash_(key) % bucket_count_;
+		        for (auto* p = buckets_[idx]; p; p = p-&gt;next) {
+		            if (key_equal_(p-&gt;value, key)) return make_iter(p, idx);
+		        }
+		        return end();
+		    }
+		    
+		    void erase(const Key&amp; key) {
+		        size_t idx = hash_(key) % bucket_count_;
+		        hashtable_node&lt;Key&gt;* prev = nullptr;
+		        for (auto* p = buckets_[idx]; p; p = p-&gt;next) {
+		            if (key_equal_(p-&gt;value, key)) {
+		                if (prev) prev-&gt;next = p-&gt;next;
+		                else buckets_[idx] = p-&gt;next;
+		                delete p;
+		                --size_;
+		                return;
+		            }
+		            prev = p;
+		        }
+		    }
+		    
+		    iterator begin() {
+		        for (size_t i = 0; i &lt; bucket_count_; ++i)
+		            if (buckets_[i]) return make_iter(buckets_[i], i);
+		        return end();
+		    }
+		
+		    iterator end() {
+		        iterator it;
+		        it.bucket = buckets_.data() + bucket_count_;
+		        it.bucket_end = buckets_.data() + bucket_count_;
+		        return it;
+		    }
+		    
+		    void clear() {
+		        for (size_t i = 0; i &lt; bucket_count_; ++i) {
+		            auto* p = buckets_[i];
+		            while (p) { auto* next = p-&gt;next; delete p; p = next; }
+		            buckets_[i] = nullptr;
+		        }
+		        size_ = 0;
+		    }
+		private:
+		    std::vector&lt;hashtable_node&lt;Key&gt;*&gt; buckets_;
+		    size_t bucket_count_;
+		    size_t size_;
+		    Hash hash_;
+		    KeyEqual key_equal_;
+		
+		    iterator make_iter(hashtable_node&lt;Key&gt;* node, size_t idx) {
+		        iterator it;
+		        it.node = node;
+		        it.bucket = buckets_.data() + idx;
+		        it.bucket_end = buckets_.data() + bucket_count_;
+		        return it;
+		    }
+		
+		    void rehash() {
+		        auto old_buckets = std::move(buckets_);
+		        bucket_count_ = next_prime(bucket_count_ * 2);
+		        buckets_.resize(bucket_count_, nullptr);
+		
+		        for (auto&amp; head : old_buckets) {
+		            auto* p = head;
+		            while (p) {
+		                auto* next = p-&gt;next;
+		                size_t idx = hash_(p-&gt;value) % bucket_count_;
+		                p-&gt;next = buckets_[idx];
+		                buckets_[idx] = p;
+		                p = next;
+		            }
+		        }
+		    }
+		
+		    size_t next_prime(size_t n) {
+		        for (size_t p : prime_list) if (p &gt;= n) return p;
+		        return prime_list[19];
+		    }
+	};
+}//namespace maple
+
+#endif
+]]></content>
+  </file>
+  <file name="iterator.hpp" path="include/maple/iterator.hpp">
+    <content><![CDATA[#ifndef MAPLE_ITERATOR_HPP
+#define MAPLE_ITERATOR_HPP
+
+#include &quot;maple/type_traits.hpp&quot;
+
+namespace maple{
+	
+	
+	// 1. ���������ͱ�ǩ��ע��̳�����
+	struct input_iterator_tag {};
+	struct output_iterator_tag {};
+	struct forward_iterator_tag : input_iterator_tag {};
+	struct bidirectional_iterator_tag : forward_iterator_tag {};
+	struct random_access_iterator_tag : bidirectional_iterator_tag {};
+	
+	
+	// 2. iterator_traits
+	template &lt;typename Iterator&gt;
+	struct iterator_traits{
+		using value_type        = typename Iterator::value_type; 
+	    using pointer           = typename Iterator::pointer;
+	    using reference         = typename Iterator::reference;
+	    using difference_type   = typename Iterator::difference_type;
+	    using iterator_category = typename Iterator::iterator_category;
+	}; 
+	
+	// T* ָ���ػ�
+	template &lt;typename T&gt;
+	struct iterator_traits&lt;T*&gt; {
+	    using value_type        = T;
+	    using pointer           = T*;
+	    using reference         = T&amp;;
+	    using difference_type   = std::ptrdiff_t;
+	    using iterator_category = random_access_iterator_tag;
+	};
+
+	// const ָ���ػ�
+	template &lt;typename T&gt;
+	struct iterator_traits&lt;const T*&gt;{
+		using value_type        = T;
+	    using pointer           = const T*;
+	    using reference         = const T&amp;;
+	    using difference_type   = std::ptrdiff_t;
+	    using iterator_category = random_access_iterator_tag;
+	};
+	// 3. advance����ǩ���ɣ�
+	namespace detail{
+		// input �汾
+		template &lt;typename InputIterator, typename Distance, typename Tag&gt;
+		void advance_impl(InputIterator&amp; it, Distance n, Tag) {
+		    while (n--) ++it;
+		}
+		
+		// bidirectional �汾
+		template &lt;typename BidirectionalIterator, typename Distance&gt;
+		void advance_impl(BidirectionalIterator&amp; it, Distance n, bidirectional_iterator_tag) {
+		    if (n &gt;= 0) {
+		        while (n--) ++it;	
+		    } else {
+		        while (n++) --it;
+		    }
+		}
+
+		// random_access �汾
+		template &lt;typename RandomIterator, typename Distance&gt;
+		void advance_impl(RandomIterator&amp; it, Distance n, random_access_iterator_tag) {
+		    it += n;
+		}
+		
+		}//namespace detail
+		
+		template &lt;typename Iterator, typename Distance&gt;
+		void advance(Iterator&amp; it, Distance n) {
+		    detail::advance_impl(it, n, typename iterator_traits&lt;Iterator&gt;::iterator_category());
+		}
+		
+		// 4. distance
+		namespace detail{
+			// input �汾
+			template &lt;typename InputIterator, typename Tag&gt;
+			typename iterator_traits&lt;InputIterator&gt;::difference_type
+			distance_impl(InputIterator first, InputIterator last, Tag) {
+			    typename iterator_traits&lt;InputIterator&gt;::difference_type n = 0;
+			    while (first != last) {
+			        ++first;
+			        ++n;
+			    }
+			    return n;
+			}
+			
+			// random_access �汾
+			template &lt;typename RandomIterator&gt;
+			typename iterator_traits&lt;RandomIterator&gt;::difference_type
+			distance_impl(RandomIterator first, RandomIterator last, random_access_iterator_tag) {
+			    return last - first;
+			}
+		}//namesapce detail
+		
+		template&lt;typename Iterator&gt;
+		typename iterator_traits&lt;Iterator&gt;::difference_type
+		distance(Iterator first,Iterator last){
+			return detail::distance_impl(first,last,typename iterator_traits&lt;Iterator&gt;::iterator_category());
+		}
+		
+		// 5. next / prev
+		template &lt;typename Iterator&gt;
+		Iterator next(Iterator it, typename iterator_traits&lt;Iterator&gt;::difference_type n = 1) {
+		    advance(it, n);
+		    return it;
+		}
+		
+		template &lt;typename Iterator&gt;
+		Iterator prev(Iterator it, typename iterator_traits&lt;Iterator&gt;::difference_type n = 1) {
+	    	advance(it, -n);
+	    	return it;
+		}
+	}// namespace maple
+	
+	
+#endif
+]]></content>
+  </file>
+  <file name="list.hpp" path="include/maple/list.hpp">
+    <content><![CDATA[#ifndef MAPLE_LIST_HPP
+#define MAPLE_LIST_HPP
+
+#include &quot;maple/list_node.hpp&quot;
+#include &quot;maple/allocator.hpp&quot;
+#include &quot;maple/construct.hpp&quot;
+#include &quot;maple/iterator.hpp&quot;
+#include &quot;maple/util.hpp&quot;
+
+namespace maple {
+
+template &lt;typename T&gt;
+class list {
+public:
+    using value_type      = T;
+    using iterator        = list_iterator&lt;T&gt;;
+    using const_iterator  = list_iterator&lt;const T&gt;;
+    using reference       = T&amp;;
+    using const_reference = const T&amp;;
+    using size_type       = size_t;
+
+    // ����/����
+    list() {
+        head_ = alloc_node();
+        head_-&gt;prev = head_;
+        head_-&gt;next = head_;
+    }
+
+    ~list() {
+        clear();
+        dealloc_node(head_);
+    }
+
+    // ����
+    size_t size()  { return size_; }
+    bool   empty() { return size_ == 0; }
+
+    // ����
+    T&amp; front() { return head_-&gt;next-&gt;data; }
+    T&amp; back()  { return head_-&gt;prev-&gt;data; }
+
+    // ������
+    iterator begin() { return iterator(head_-&gt;next); }
+    iterator end()   { return iterator(head_); }
+    
+
+    // �޸�
+    void push_back(const T&amp; val)  { insert(end(), val); }
+    void push_front(const T&amp; val) { insert(begin(), val); }
+    void pop_back()  { erase(--end()); }
+    void pop_front() { erase(begin()); }
+
+    // insert/erase
+    iterator insert(iterator pos, const T&amp; val) {
+        list_node&lt;T&gt;* new_node = alloc_node(val);
+        list_node&lt;T&gt;* cur = pos.node;
+
+        new_node-&gt;next = cur;
+        new_node-&gt;prev = cur-&gt;prev;
+        cur-&gt;prev-&gt;next = new_node;
+        cur-&gt;prev = new_node;
+
+        ++size_;
+        return iterator(new_node);
+    }
+
+    iterator erase(iterator pos) {
+        list_node&lt;T&gt;* cur = pos.node;
+        list_node&lt;T&gt;* ret = cur-&gt;next;
+
+        cur-&gt;prev-&gt;next = cur-&gt;next;
+        cur-&gt;next-&gt;prev = cur-&gt;prev;
+
+        destroy_node(cur);
+        --size_;
+        return iterator(ret);
+    }
+
+    void clear() {
+        list_node&lt;T&gt;* cur = head_-&gt;next;
+        while (cur != head_) {
+            list_node&lt;T&gt;* tmp = cur;
+            cur = cur-&gt;next;
+            destroy_node(tmp);
+        }
+        head_-&gt;prev = head_;
+        head_-&gt;next = head_;
+        size_ = 0;
+    }
+
+    // ����/�ƶ�
+    list(const list&amp; other) : list() {
+	    for (list_node&lt;T&gt;* cur = other.head_-&gt;next; cur != other.head_; cur = cur-&gt;next) {
+	        push_back(cur-&gt;data);
+	    }
+	}
+
+    list(list&amp;&amp; other) noexcept
+        : head_(other.head_)
+        , size_(other.size_) {
+        other.head_ = alloc_node();
+        other.head_-&gt;prev = other.head_;
+        other.head_-&gt;next = other.head_;
+        other.size_ = 0;
+    }
+
+    list&amp; operator=(const list&amp; other) {
+        if (this != &amp;other) {
+            clear();
+            for (list_node&lt;T&gt;* cur = other.head_-&gt;next; cur != other.head_; cur = cur-&gt;next) {
+		        push_back(cur-&gt;data);
+		    }
+        }
+        return *this;
+    }
+
+    list&amp; operator=(list&amp;&amp; other) noexcept {
+        if (this != &amp;other) {
+            clear();
+            dealloc_node(head_);
+
+            head_ = other.head_;
+            size_ = other.size_;
+
+            other.head_ = alloc_node();
+            other.head_-&gt;prev = other.head_;
+            other.head_-&gt;next = other.head_;
+            other.size_ = 0;
+        }
+        return *this;
+    }
+
+    void swap(list&amp; other) noexcept {
+        maple::swap(head_, other.head_);
+        maple::swap(size_, other.size_);
+    }
+
+private:
+    list_node&lt;T&gt;* head_ = nullptr;
+    size_t        size_ = 0;
+
+    list_node&lt;T&gt;* alloc_node(const T&amp; val = T()) {
+        list_node&lt;T&gt;* node = static_cast&lt;list_node&lt;T&gt;*&gt;(::operator new(sizeof(list_node&lt;T&gt;)));
+        maple::construct(&amp;(node-&gt;data), val);
+        node-&gt;prev = nullptr;
+        node-&gt;next = nullptr;
+        return node;
+    }
+
+    void destroy_node(list_node&lt;T&gt;* node) {
+        maple::destroy(&amp;(node-&gt;data));
+        ::operator delete(node);
+    }
+
+    void dealloc_node(list_node&lt;T&gt;* node) {
+        ::operator delete(node);
+    }
+};
+
+} // namespace maple
+
+#endif
+]]></content>
+  </file>
+  <file name="list_node.hpp" path="include/maple/list_node.hpp">
+    <content><![CDATA[#ifndef MAPLE_LIST_NODE_HPP
+#define MAPLE_LIST_NODE_HPP
+
+#include &lt;cstddef&gt;
+#include &quot;maple/iterator.hpp&quot;
+namespace maple{
+	template &lt;typename T&gt;
+	struct list_node{
+		list_node*prev;
+		list_node*next;
+		T data;
+		
+		list_node():prev(nullptr),next(nullptr),data(){
+		}
+		list_node(const T&amp;val):prev(nullptr),next(nullptr),data(val){
+		}
+	}; 
+	
+	// �����������˫��
+	template &lt;typename T&gt;
+	struct list_iterator {
+	    using value_type        = T;
+	    using pointer           = T*;
+	    using reference         = T&amp;;
+	    using difference_type   = std::ptrdiff_t;
+	    using iterator_category = bidirectional_iterator_tag;
+	    list_node&lt;T&gt;* node;
+
+	    list_iterator() : node(nullptr) {}
+	    list_iterator(list_node&lt;T&gt;* n) : node(n) {}
+	
+	    reference operator*()  const { return node-&gt;data; }
+	    pointer   operator-&gt;() const { return &amp;(node-&gt;data); }
+	    
+	    // ǰ�� ++
+	    list_iterator&amp; operator++() {
+	        node = node-&gt;next;
+	        return *this;
+	    }
+	
+	    // ���� ++
+	    list_iterator operator++(int) {
+	        list_iterator tmp = *this;
+	        node = node-&gt;next;
+	        return tmp;
+	    }
+	
+	    // ǰ�� --
+	    list_iterator&amp; operator--() {
+	        node = node-&gt;prev;
+	        return *this;
+	    }
+	
+	    // ���� --
+	    list_iterator operator--(int) {
+	        list_iterator tmp = *this;
+	        node = node-&gt;prev;
+	        return tmp;
+	    }
+	
+	    bool operator==(const list_iterator&amp; other) const { return node == other.node; }
+	    bool operator!=(const list_iterator&amp; other) const { return node != other.node; }
+};
+}//namespace
+
+#endif
+]]></content>
+  </file>
+  <file name="map.hpp" path="include/maple/map.hpp">
+    <content><![CDATA[#ifndef MAPLE_MAP_HPP
+#define MAPLE_MAP_HPP
+
+#include &quot;maple/rb_tree.hpp&quot;
+#include &quot;maple/util.hpp&quot;
+
+namespace maple{
+	template &lt;typename Key, typename Value, typename Compare = std::less&lt;Key&gt;&gt;
+	class map{
+		public:
+			using value_type=pair&lt;const Key,Value&gt;;
+			
+			map()=default;
+			
+			size_t size()const{
+			return tree_.size();}
+			
+			void insert(const value_type&amp; kv){
+				tree_.insert(kv);
+			}
+			
+			Value&amp; operator[](const Key&amp; key) {
+		        auto it = find(key);
+		        if (it == end()) {
+		            insert(pair&lt;const Key, Value&gt;(key, Value()));
+		            it = find(key);
+		        }
+		        return it-&gt;second;
+		    }
+		private:
+			struct MapCompare{
+				bool operator()(const value_type&amp; a, const value_type&amp; b)const{
+					return Compare()(a.first, b.first);
+				}
+			};
+			using Iterator=typename rb_tree&lt;value_type, MapCompare&gt;::iterator;
+		public:
+			using iterator = Iterator;
+
+		    iterator begin() { return tree_.begin(); }
+		    iterator end()   { return tree_.end(); }
+		    iterator find(const Key&amp; key) {
+		        value_type dummy(key, Value());
+		        return tree_.find(dummy);
+		    }
+		private:
+			rb_tree&lt;value_type,MapCompare&gt;tree_;
+	};
+}//namespace maple
+
+#endif
+]]></content>
+  </file>
+  <file name="memory_pool.hpp" path="include/maple/memory_pool.hpp">
+    <content><![CDATA[#ifndef MAPLE_MEMORY_POOL_HPP
+#define MAPLE_MEMORY_POOL_HPP
+
+#include &lt;cstddef&gt;
+#include &quot;maple/util.hpp&quot;
+
+namespace maple{
+	template &lt;typename T, size_t BlockSize = 4096&gt;
+	class memory_pool{
+		public:
+		memory_pool():free_list_(nullptr),blocks_(nullptr){
+		}
+		
+		~memory_pool(){
+			// �ͷ����з�����ڴ��
+			while(blocks_){
+				auto* next=blocks_-&gt;next;
+	            ::operator delete(blocks_);
+	            blocks_ = next;
+			}
+		}
+		
+		T*allocate(){
+			if(!free_list_){
+				allocate_block();
+			}
+			FreeNode* node = free_list_;
+	        free_list_ = node-&gt;next;
+	        return reinterpret_cast&lt;T*&gt;(node);
+		}
+		
+		void deallocate(T* p){
+			p-&gt;~T();
+			auto* node=reinterpret_cast&lt;FreeNode*&gt;(p);
+			node-&gt;next=free_list_;
+			free_list_=node;
+		}
+		
+		template &lt;typename... Args&gt;
+	    T* construct(Args&amp;&amp;... args) {
+	        T* p = allocate();
+	        ::new(p) T(maple::forward&lt;Args&gt;(args)...);
+	        return p;
+	    }
+	    
+	    void destroy(T* p) {
+	        deallocate(p);
+	    }
+	    
+	    private:
+	    union FreeNode{
+	    	T data;
+	    	FreeNode* next;
+	    	FreeNode():next(nullptr){
+			}
+			~FreeNode(){
+			}
+		};
+		
+		struct MemoryBlock{
+			FreeNode nodes[BlockSize];
+	        MemoryBlock* next;
+	        MemoryBlock() : next(nullptr) {}
+		};
+		
+		FreeNode* free_list_;
+    	MemoryBlock* blocks_ = nullptr;
+    	
+    	void allocate_block() {
+	        auto* block = static_cast&lt;MemoryBlock*&gt;(::operator new(sizeof(MemoryBlock)));
+	        block-&gt;next = blocks_;
+	        blocks_ = block;
+	
+	        // ���¿������нڵ㴮���������
+	        for (size_t i = 0; i &lt; BlockSize; ++i) {
+	            block-&gt;nodes[i].next = free_list_;
+	            free_list_ = &amp;block-&gt;nodes[i];
+	        }
+	    }
+	};
+}//namespace
+
+#endif
+]]></content>
+  </file>
+  <file name="queue.hpp" path="include/maple/queue.hpp">
+    <content><![CDATA[#ifndef MAPLE_QUEUE_HPP
+#define MAPLE_QUEUE_HPP
+
+#include &quot;maple/deque.hpp&quot;
+
+namespace maple {
+	template &lt;typename T, typename Container = deque&lt;T&gt;&gt;
+	class queue {
+	public:
+	    using value_type=typename Container::value_type;
+	    using size_type=typename Container::size_type;
+	    using reference=typename Container::reference;
+	    using const_reference=typename Container::const_reference;
+	
+	    queue()=default;
+	
+	    bool empty() const{ return c_.empty(); }
+	    size_type size()const { return c_.size(); }
+	    reference front(){ return c_.front(); }
+	    reference back(){ return c_.back(); }
+	
+	    void push(const T&amp; val) { c_.push_back(val); }
+	    void pop(){ c_.pop_front(); }
+	
+	private:
+	    Container c_;
+};
+
+} // namespace maple
+
+#endif
+]]></content>
+  </file>
+  <file name="rb_tree.hpp" path="include/maple/rb_tree.hpp">
+    <content><![CDATA[#ifndef MAPLE_RB_TREE_HPP
+#define MAPLE_RB_TREE_HPP
+
+#include &lt;cstddef&gt;
+#include &lt;functional&gt;
+#include &quot;maple/iterator.hpp&quot;
+
+namespace maple{
+	//��ɫ 
+	enum class rb_color{
+		RED,BLACK
+	}; 
+	
+	//�����
+	template &lt;typename T&gt;
+	struct rb_tree_node{
+		T value;
+		rb_color color;
+		rb_tree_node* left;
+		rb_tree_node* right;
+		rb_tree_node* parent;
+		
+		rb_tree_node(const T&amp; val)
+			:value(val),color(rb_color::RED),left(nullptr),right(nullptr),parent(nullptr)
+			{}
+	};
+	
+	// �������������˫��
+	template&lt;typename T&gt;
+	struct rb_tree_iterator{
+		using value_type=T;
+		using pointer=T*;
+		using reference=T&amp;;
+		using difference_type=std::ptrdiff_t;
+		using iterator_category=bidirectional_iterator_tag;
+		
+		rb_tree_node&lt;T&gt;*node;
+		
+		rb_tree_iterator():node(nullptr){
+		}
+		rb_tree_iterator(rb_tree_node&lt;T&gt;* n):node(n){
+		}
+		
+		reference operator*()const{return node-&gt;value;}
+		pointer operator-&gt;()const{return &amp;(node-&gt;value);}
+		
+		// ǰ��++���Һ��
+		rb_tree_iterator&amp; operator++(){
+			if(node-&gt;right){
+				// ��������Ϊ�� �� �����������������ڵ�
+	            node = node-&gt;right;
+	            while (node-&gt;left) node = node-&gt;left;
+			}else{
+				// ������Ϊ�� �� �����ҵ�һ��&quot;��ǰ�ڵ�������&quot;������
+	            rb_tree_node&lt;T&gt;* parent = node-&gt;parent;
+	            while (parent &amp;&amp; node == parent-&gt;right) {
+	                node = parent;
+	                parent = parent-&gt;parent;
+	            }
+	            node = parent;
+			}
+			return *this;
+		}
+		
+		rb_tree_iterator operator++(int) {
+	        rb_tree_iterator tmp = *this;
+	        ++(*this);
+	        return tmp;
+	    }
+		
+		// ǰ��--����ǰ������++�Գƣ�
+		rb_tree_iterator&amp; operator--(){
+			if (node-&gt;left) {
+	            node = node-&gt;left;
+	            while (node-&gt;right) node = node-&gt;right;
+	        } else {
+	            rb_tree_node&lt;T&gt;* parent = node-&gt;parent;
+	            while (parent &amp;&amp; node == parent-&gt;left) {
+	                node = parent;
+	                parent = parent-&gt;parent;
+	            }
+	            node = parent;
+	        }
+	        return *this;
+		}
+		
+		rb_tree_iterator operator--(int) {
+	        rb_tree_iterator tmp = *this;
+	        --(*this);
+	        return tmp;
+	    }
+	
+	    bool operator==(const rb_tree_iterator&amp; other) const { return node == other.node; }
+	    bool operator!=(const rb_tree_iterator&amp; other) const { return node != other.node; }
+	};
+	
+	// �������
+	template &lt;typename T, typename Compare = std::less&lt;T&gt;&gt;
+	class rb_tree{
+		public:
+			using iterator=rb_tree_iterator&lt;T&gt;;
+			rb_tree():root_(nullptr),size_(0){
+			}
+			size_t size()const{return size_;}
+			
+			
+			//����
+			void insert(const T&amp; val){
+				rb_tree_node&lt;T&gt;*node=new rb_tree_node&lt;T&gt;(val);
+				rb_tree_node&lt;T&gt;*parent=nullptr;
+				rb_tree_node&lt;T&gt;*cur=root_;
+				
+				// 1. ��ͨ BST ����
+				while(cur){
+					parent=cur;
+					if(compare_(val,cur-&gt;value)){
+						cur=cur-&gt;left;
+					}else{
+						cur=cur-&gt;right;
+					}
+				}
+				
+				node-&gt;parent = parent;
+				if (!parent) {
+		            root_ = node;
+		        } else if (compare_(val, parent-&gt;value)) {
+		            parent-&gt;left = node;
+		        } else {
+		            parent-&gt;right = node;
+		        }
+		        
+		        // 2. ������޸�
+		        insert_fix(node);
+		        ++size_;
+			}
+		private:
+    		rb_tree_node&lt;T&gt;* root_;
+			size_t size_;
+			Compare compare_;
+			//��ת
+    		// ������x ���Һ��� y ��� x �ĸ���
+    		void rotate_left(rb_tree_node&lt;T&gt;*x){
+    			rb_tree_node&lt;T&gt;*y=x-&gt;right;
+    			x-&gt;right=y-&gt;left;
+    			if (y-&gt;left) y-&gt;left-&gt;parent = x;
+    			
+    			y-&gt;parent=x-&gt;parent;
+    			if(!x-&gt;parent){
+    				root_=y;
+				}else if(x==x-&gt;parent-&gt;left){
+					x-&gt;parent-&gt;left=y;
+				}else{
+					x-&gt;parent-&gt;right=y;
+				}
+				
+				y-&gt;left=x;
+				x-&gt;parent=y;
+			}
+			// ������x ������ y ��� x �ĸ���
+		    void rotate_right(rb_tree_node&lt;T&gt;* x) {
+		        rb_tree_node&lt;T&gt;* y = x-&gt;left;
+		        x-&gt;left = y-&gt;right;
+		        if (y-&gt;right) y-&gt;right-&gt;parent = x;
+		
+		        y-&gt;parent = x-&gt;parent;
+		        if (!x-&gt;parent) {
+		            root_ = y;
+		        } else if (x == x-&gt;parent-&gt;left) {
+		            x-&gt;parent-&gt;left = y;
+		        } else {
+		            x-&gt;parent-&gt;right = y;
+		        }
+		
+		        y-&gt;right = x;
+		        x-&gt;parent = y;
+		    }
+			
+			//�����޸�
+			void insert_fix(rb_tree_node&lt;T&gt;* node) {
+		        while (node-&gt;parent &amp;&amp; node-&gt;parent-&gt;color == rb_color::RED) {
+		            rb_tree_node&lt;T&gt;* parent = node-&gt;parent;
+		            rb_tree_node&lt;T&gt;* grand  = parent-&gt;parent;
+		
+		            if (parent == grand-&gt;left) {
+		                // �������Һ���
+		                rb_tree_node&lt;T&gt;* uncle = grand-&gt;right;
+		
+		                if (uncle!=nullptr &amp;&amp; uncle-&gt;color == rb_color::RED) {
+		                    // ��� 1�������Ǻ�ɫ
+		                    parent-&gt;color = rb_color::BLACK;
+		                    uncle-&gt;color  = rb_color::BLACK;
+		                    grand-&gt;color  = rb_color::RED;
+		                    node = grand;  // ������
+		                } else {
+		                    // ��� 2�������Ǻ�ɫ����ǰ���Һ��� �� �������������� 3
+		                    if (node == parent-&gt;right) {
+		                        node = parent;
+		                        rotate_left(node);
+		                        parent = node-&gt;parent;
+		                        grand  = parent-&gt;parent;
+		                    }
+		                    // ��� 3�������Ǻ�ɫ����ǰ������ �� ����үү
+		                    parent-&gt;color = rb_color::BLACK;
+		                    grand-&gt;color  = rb_color::RED;
+		                    rotate_right(grand);
+		                }
+		            } else {
+		                // �Գƣ�����������
+		                rb_tree_node&lt;T&gt;* uncle = grand-&gt;left;
+		
+		                if (uncle &amp;&amp; uncle-&gt;color == rb_color::RED) {
+		                    parent-&gt;color = rb_color::BLACK;
+		                    uncle-&gt;color  = rb_color::BLACK;
+		                    grand-&gt;color  = rb_color::RED;
+		                    node = grand;
+		                } else {
+		                    if (node == parent-&gt;left) {
+		                        node = parent;
+		                        rotate_right(node);
+		                        parent = node-&gt;parent;
+		                        grand  = parent-&gt;parent;
+		                    }
+		                    parent-&gt;color = rb_color::BLACK;
+		                    grand-&gt;color  = rb_color::RED;
+		                    rotate_left(grand);
+		                }
+		            }
+		        }
+		        root_-&gt;color = rb_color::BLACK;
+		    }
+		    public:
+		        iterator begin() {
+			        if (!root_) return iterator(nullptr);
+			        rb_tree_node&lt;T&gt;* node = root_;
+			        while (node-&gt;left) node = node-&gt;left;
+			        return iterator(node);
+			    }
+			
+			    iterator end() {
+			        return iterator(nullptr);
+			    }
+			
+			    iterator find(const T&amp; val) {
+			        rb_tree_node&lt;T&gt;* cur = root_;
+			        while (cur) {
+			            if (compare_(val, cur-&gt;value))
+			                cur = cur-&gt;left;
+			            else if (compare_(cur-&gt;value, val))
+			                cur = cur-&gt;right;
+			            else
+			                return iterator(cur);
+			        }
+			        return end();
+			    }
+			
+	};
+	
+}//namespace maple
+
+#endif
+]]></content>
+  </file>
+  <file name="set.hpp" path="include/maple/set.hpp">
+    <content><![CDATA[#ifndef MAPLE_SET_HPP
+#define MAPLE_SET_HPP
+
+#include &quot;maple/rb_tree.hpp&quot;
+
+namespace maple{
+	template&lt;typename Key,typename Compare=std::less&lt;Key&gt;&gt;
+	class set{
+		public:
+			using iterator=typename rb_tree&lt;Key,Compare&gt;::iterator;
+			set()=default;
+			size_t size()const{
+				return tree_.size();
+			}
+			void insert(const Key&amp;key){
+				tree_.insert(key);
+			}
+			
+			iterator begin(){
+				return tree_.begin();
+			}
+			iterator end(){
+				return tree_.end();
+			}
+			iterator find(const Key&amp;key){
+				return tree_.find(key);
+			}
+		private:
+			rb_tree&lt;Key,Compare&gt; tree_;
+	};
+}//namespace maple
+
+#endif
+]]></content>
+  </file>
+  <file name="shared_ptr.hpp" path="include/maple/shared_ptr.hpp">
+    <content><![CDATA[#ifndef MAPLE_SHARED_PTR_HPP
+#define MAPLE_SHARED_PTR_HPP
+
+#include &lt;cstddef&gt;
+#include &lt;atomic&gt;
+#include &quot;maple/util.hpp&quot;
+
+namespace maple {
+
+template &lt;typename T&gt; class weak_ptr;  // ǰ������
+
+template &lt;typename T&gt;
+class shared_ptr {
+public:
+    shared_ptr() : ptr_(nullptr), ref_count_(nullptr) {}
+
+    explicit shared_ptr(T* p) : ptr_(p), ref_count_(new std::atomic&lt;size_t&gt;(1)) {}
+
+    shared_ptr(const shared_ptr&amp; other)
+        : ptr_(other.ptr_), ref_count_(other.ref_count_) {
+        if (ref_count_) ref_count_-&gt;fetch_add(1);
+    }
+
+    shared_ptr(shared_ptr&amp;&amp; other) noexcept
+        : ptr_(other.ptr_), ref_count_(other.ref_count_) {
+        other.ptr_ = nullptr;
+        other.ref_count_ = nullptr;
+    }
+
+    ~shared_ptr() { release(); }
+
+    shared_ptr&amp; operator=(const shared_ptr&amp; other) {
+        if (this != &amp;other) {
+            release();
+            ptr_ = other.ptr_;
+            ref_count_ = other.ref_count_;
+            if (ref_count_) ref_count_-&gt;fetch_add(1);
+        }
+        return *this;
+    }
+
+    shared_ptr&amp; operator=(shared_ptr&amp;&amp; other) noexcept {
+        if (this != &amp;other) {
+            release();
+            ptr_ = other.ptr_;
+            ref_count_ = other.ref_count_;
+            other.ptr_ = nullptr;
+            other.ref_count_ = nullptr;
+        }
+        return *this;
+    }
+
+    T&amp; operator*()  const { return *ptr_; }
+    T* operator-&gt;() const { return ptr_; }
+    T* get()        const { return ptr_; }
+
+    size_t use_count() const {
+        return ref_count_ ? ref_count_-&gt;load() : 0;
+    }
+
+    bool unique() const { return use_count() == 1; }
+    void reset() { release(); }
+
+    std::atomic&lt;size_t&gt;* ref_count_ptr() const { return ref_count_; }
+
+    bool operator==(const shared_ptr&amp; other) const { return ptr_ == other.ptr_; }
+    bool operator!=(const shared_ptr&amp; other) const { return ptr_ != other.ptr_; }
+
+    friend class weak_ptr&lt;T&gt;;
+
+private:
+    T* ptr_;
+    std::atomic&lt;size_t&gt;* ref_count_;
+
+    shared_ptr(const weak_ptr&lt;T&gt;&amp; wp)
+        : ptr_(wp.ptr_), ref_count_(wp.ref_count_) {
+        if (ref_count_) ref_count_-&gt;fetch_add(1);
+    }
+
+    void release() {
+        if (ref_count_) {
+            if (ref_count_-&gt;fetch_sub(1) == 1) {
+                delete ptr_;
+                delete ref_count_;
+            }
+            ptr_ = nullptr;
+            ref_count_ = nullptr;
+        }
+    }
+};
+
+} // namespace maple
+
+#endif
+]]></content>
+  </file>
+  <file name="stack.hpp" path="include/maple/stack.hpp">
+    <content><![CDATA[#ifndef MAPLE_STACK_HPP
+#define MAPLE_STACK_HPP
+
+#include &quot;maple/deque.hpp&quot;
+
+namespace maple{
+	template &lt;typename T, typename Container = deque&lt;T&gt;&gt;
+	class stack {
+	public:
+	    using value_type=typename Container::value_type;
+	    using size_type=typename Container::size_type;
+	    using reference=typename Container::reference;
+	    using const_reference=typename Container::const_reference;
+	
+	    stack()=default;
+	
+	    bool empty() const { return c_.empty(); }
+	    size_type size()const { return c_.size(); }
+	    reference top(){ return c_.back(); }
+	
+	    void push(const T&amp; val){ c_.push_back(val); }
+	    void pop(){ c_.pop_back(); }
+	
+	private:
+	    Container c_;
+	};
+
+} // namespace maple
+
+#endif
+]]></content>
+  </file>
+  <file name="type_traits.hpp" path="include/maple/type_traits.hpp">
+    <content><![CDATA[#ifndef MAPLE_TYPE_TRAITS_HPP
+#define MAPLE_TYPE_TRAITS_HPP 
+
+
+namespace maple{
+	
+	// 1. integral_constant������ type_traits �Ļ��ࣩ
+	template&lt;typename T,T v&gt;
+	struct integral_constant{
+		static constexpr T value=v;
+		using value_type=T;
+		using type = integral_constant&lt;T ,v&gt;;
+		constexpr operator T()const {return v;}
+	};
+	
+	using true_type=integral_constant&lt;bool,true&gt;;
+	using false_type=integral_constant&lt;bool,false&gt;;
+	
+	// 2. remove_reference��move/forward ��������
+	template &lt;typename T&gt; struct remove_reference { using type=T;};
+	template &lt;typename T&gt; struct remove_reference&lt;T&amp;&gt;{ using type=T;};
+	template &lt;typename T&gt; struct remove_reference&lt;T&amp;&amp;&gt;{ using type=T;};
+	
+	//3. is_same
+	template&lt;typename T,typename U&gt;
+	struct is_same:false_type{
+	};
+	
+	template&lt;typename T&gt;
+	struct is_same&lt;T,T&gt;:true_type{};
+	
+	//4. enable_if
+	template&lt;bool B,typename T=void&gt;
+	struct enable_if{};
+	
+	template&lt;typename T&gt;
+	struct enable_if&lt;true,T&gt;{
+		using type=T;
+	};
+	
+	//5. remove_const
+	template &lt;typename T&gt;struct remove_const  { using type = T; };
+	template &lt;typename T&gt;struct remove_const&lt;const T&gt;  { using type = T; };
+	
+	
+	// 6. is_const
+	template &lt;typename T&gt; struct is_const : false_type {};
+	template &lt;typename T&gt; struct is_const&lt;const T&gt; : true_type {};
+	
+	// 7. is_integral
+	template &lt;typename T&gt; struct is_integral : false_type {};
+	template &lt;&gt; struct is_integral&lt;bool&gt;               : true_type {};
+	template &lt;&gt; struct is_integral&lt;char&gt;               : true_type {};
+	template &lt;&gt; struct is_integral&lt;signed char&gt;        : true_type {};
+	template &lt;&gt; struct is_integral&lt;unsigned char&gt;      : true_type {};
+	template &lt;&gt; struct is_integral&lt;short&gt;              : true_type {};
+	template &lt;&gt; struct is_integral&lt;unsigned short&gt;     : true_type {};
+	template &lt;&gt; struct is_integral&lt;int&gt;                : true_type {};
+	template &lt;&gt; struct is_integral&lt;unsigned int&gt;       : true_type {};
+	template &lt;&gt; struct is_integral&lt;long&gt;               : true_type {};
+	template &lt;&gt; struct is_integral&lt;unsigned long&gt;      : true_type {};
+	template &lt;&gt; struct is_integral&lt;long long&gt;          : true_type {};
+	template &lt;&gt; struct is_integral&lt;unsigned long long&gt; : true_type {};
+	
+	// 8. is_floating_point
+	template &lt;typename T&gt; struct is_floating_point : false_type {};
+	template &lt;&gt; struct is_floating_point&lt;float&gt;       : true_type {};
+	template &lt;&gt; struct is_floating_point&lt;double&gt;      : true_type {};
+	template &lt;&gt; struct is_floating_point&lt;long double&gt; : true_type {};
+	
+	// 9. is_arithmetic�������򸡵㣩
+	template &lt;typename T&gt;
+	struct is_arithmetic : integral_constant&lt;bool, is_integral&lt;T&gt;::value || is_floating_point&lt;T&gt;::value&gt; {};
+	
+	// 10. is_pointer
+	template &lt;typename T&gt; struct is_pointer : false_type {};
+	template &lt;typename T&gt; struct is_pointer&lt;T*&gt; : true_type {};
+	
+	// 11. is_reference
+	template &lt;typename T&gt; struct is_reference : false_type {};
+	template &lt;typename T&gt; struct is_reference&lt;T&amp;&gt; : true_type {};
+	template &lt;typename T&gt; struct is_reference&lt;T&amp;&amp;&gt; : true_type {};
+	
+	//12. is_array
+	template &lt;typename T&gt; struct is_array : false_type {};
+	template &lt;typename T&gt; struct is_array&lt;T[]&gt; : true_type {};
+	template &lt;typename T, size_t N&gt; struct is_array&lt;T[N]&gt; : true_type {};
+	
+	//// 13. is_void
+	template &lt;typename T&gt; struct is_void : is_same&lt;void, typename remove_const&lt;T&gt;::type&gt; {};
+	
+	// �������� = ƽ������
+	template &lt;typename T&gt;
+	struct is_trivially_destructible : is_arithmetic&lt;T&gt; {};
+	
+	// ָ��Ҳ��ƽ������
+	template &lt;typename T&gt;
+	struct is_trivially_destructible&lt;T*&gt; : true_type {};
+}//namespace maple
+
+#endif
+]]></content>
+  </file>
+  <file name="uninitialized.hpp" path="include/maple/uninitialized.hpp">
+    <content><![CDATA[#ifndef MAPLE_UNINITIALIZED_HPP
+#define MAPLE_UNINITIALIZED_HPP
+
+#include &quot;maple/construct.hpp&quot;
+
+/*
+allocator.hpp��Ҫ�ڴ� �� ���ڴ棩
+    ��
+construct.hpp�����Ѿ�����õ�ԭʼ�ڴ��Ϲ����������ٶ���
+    ��
+uninitialized.hpp����һ����δ��ʼ����ԭʼ�ڴ����������������;ʧ�ܻ�ع���
+
+*/
+namespace maple{
+	template &lt;typename InputIterator, typename ForwardIterator&gt;
+		ForwardIterator uninitialized_copy(InputIterator first, InputIterator last, ForwardIterator result) {
+		    ForwardIterator cur = result;
+		    try {
+		        for (; first != last; ++first, ++cur) {
+		            maple::construct(&amp;(*cur), *first);
+		        }
+		    } catch (...) {
+		        destroy(result, cur);
+		        throw;
+		    }
+		    return cur;
+		}
+		
+	template &lt;typename ForwardIterator, typename T&gt;
+		void uninitialized_fill(ForwardIterator first, ForwardIterator last, const T&amp; value) {
+		    ForwardIterator cur = first;
+		    try {
+		        for (; cur != last; ++cur) {
+		            maple::construct(&amp;(*cur), value);
+		        }
+		    } catch (...) {
+		        destroy(first, cur);
+		        throw;
+		    }
+		}
+
+} // namespace maple
+
+#endif
+]]></content>
+  </file>
+  <file name="unordered_map.hpp" path="include/maple/unordered_map.hpp">
+    <content><![CDATA[#ifndef MAPLE_UNORDERED_MAP_HPP
+#define MAPLE_UNORDERED_MAP_HPP
+
+#include &quot;maple/hashtable.hpp&quot;
+#include &quot;maple/util.hpp&quot;
+
+namespace maple{
+
+template&lt;typename Key,typename Value,typename Hash=std::hash&lt;Key&gt;,typename KeyEqual=std::equal_to&lt;Key&gt;&gt;
+class unordered_map{
+public:
+    using value_type=pair&lt;const Key,Value&gt;;
+
+private:
+    struct MapHash{
+        size_t operator()(const value_type&amp; kv)const{
+            return Hash()(kv.first);
+        }
+    };
+    struct MapEqual{
+        bool operator()(const value_type&amp; a,const value_type&amp; b)const{
+            return KeyEqual()(a.first,b.first);
+        }
+    };
+    using HT=hashtable&lt;value_type,MapHash,MapEqual&gt;;
+
+public:
+    using iterator=typename HT::iterator;
+    
+    size_t size()const{ return ht_.size(); }
+    void insert(const value_type&amp; kv){ ht_.insert(kv); }
+    Value&amp; operator[](const Key&amp; key) {
+        value_type dummy(key,Value());
+        auto it=ht_.find(dummy);
+        if (it==ht_.end()) {
+            ht_.insert(dummy);
+            it=ht_.find(dummy);
+        }
+        return it-&gt;second;
+    }
+
+    iterator find(const Key&amp; key) {
+        return ht_.find(value_type(key,Value()));
+    }
+    iterator begin(){ return ht_.begin(); }
+    iterator end(){ return ht_.end(); }
+
+private:
+    HT ht_;
+};
+}//namespace maple
+
+#endif
+]]></content>
+  </file>
+  <file name="unordered_set.hpp" path="include/maple/unordered_set.hpp">
+    <content><![CDATA[#ifndef MAPLE_UNORDERED_SET_HPP
+#define MAPLE_UNORDERED_SET_HPP
+
+#include &quot;maple/hashtable.hpp&quot;
+
+namespace maple{
+
+template&lt;typename Key,typename Hash=std::hash&lt;Key&gt;,typename KeyEqual=std::equal_to&lt;Key&gt;&gt;
+class unordered_set{
+public:
+    using iterator=typename hashtable&lt;Key, Hash, KeyEqual&gt;::iterator;
+
+    size_t size()const{return ht_.size(); }
+
+    void insert(const Key&amp; key){ ht_.insert(key); }
+    void erase(const Key&amp; key){ ht_.erase(key); }
+
+    iterator find(const Key&amp; key){return ht_.find(key); }
+    iterator begin(){return ht_.begin(); }
+    iterator end(){return ht_.end(); }
+
+private:
+    hashtable&lt;Key, Hash, KeyEqual&gt; ht_;
+};
+}//namespace maple
+
+#endif
+]]></content>
+  </file>
+  <file name="util.hpp" path="include/maple/util.hpp">
+    <content><![CDATA[#ifndef MAPLE_UTIL_HPP
+#define MAPLE_UTIL_HPP
+#include &quot;maple/type_traits.hpp&quot;
+
+namespace maple{
+	template&lt;typename T1,typename T2&gt;
+	struct pair{
+		T1 first;
+		T2 second;
+		//Ĭ�ϸ���
+		pair():first(),second(){}
+		
+		//����������
+		pair(const T1&amp;a,const T2&amp;b):first(a),second(b){
+		} 
+		
+		//��������
+		pair(const pair&amp;)=default; 
+		
+		//�ƶ����� 
+		pair(pair&amp;&amp;)=default; 
+		
+		//������ֵ
+		pair&amp;operator=(const pair&amp;)=default;
+		
+		//�ƶ���ֵ 
+		pair&amp;operator=(pair&amp;&amp;)=default; 
+		
+		//swap
+		void swap(pair&amp; other) {
+		    using std::swap;
+		    swap(first, other.first);
+		    swap(second, other.second);
+		}
+	};
+	
+	//pair �ȽϷ�
+	template&lt;typename T1,typename T2&gt;
+	bool operator==(const pair&lt;T1,T2&gt;&amp;a,const pair&lt;T1,T2&gt;&amp;b){
+		return a.first==b.first&amp;&amp;a.second==b.second;
+	} 
+	
+	template&lt;typename T1,typename T2&gt;
+	bool operator!=(const pair&lt;T1,T2&gt;&amp;a,const pair&lt;T1,T2&gt;&amp;b){
+		return !(a==b);
+	}
+	
+	template&lt;typename T1,typename T2&gt;
+	bool operator&lt;(const pair&lt;T1,T2&gt;&amp;a,const pair&lt;T1,T2&gt;&amp;b){
+		return a.first&lt;b.first||(!(b.first&lt;a.first)&amp;&amp;(a.second&lt;b.second));
+	}
+	
+	template&lt;typename T1,typename T2&gt;
+	bool operator&gt;(const pair&lt;T1,T2&gt;&amp;a,const pair&lt;T1,T2&gt;&amp;b){
+		return a.first&gt;b.first||(!(b.first&gt;a.first)&amp;&amp;(a.second&gt;b.second));
+	} 
+	
+	template&lt;typename T1,typename T2&gt;
+	bool operator&lt;=(const pair&lt;T1,T2&gt;&amp;a,const pair&lt;T1,T2&gt;&amp;b){
+		return a.first&lt;=b.first||(!(b.first&gt;a.first)&amp;&amp;(a.second&lt;=b.second));
+	} 
+	
+	template&lt;typename T1,typename T2&gt;
+	bool operator&gt;=(const pair&lt;T1,T2&gt;&amp;a,const pair&lt;T1,T2&gt;&amp;b){
+		return a.first&gt;=b.first||(!(b.first&lt;a.first)&amp;&amp;(a.second&gt;=b.second));
+	} 
+	
+	//make_pair
+	template&lt;typename T1,typename T2&gt;
+	pair&lt;T1,T2&gt;make_pair(T1 a,T2 b){
+		return pair&lt;T1,T2&gt;(a,b);
+	}
+	
+	// move
+	template &lt;typename T&gt;
+	typename remove_reference&lt;T&gt;::type&amp;&amp; move(T&amp;&amp; arg) {
+	    return static_cast&lt;typename remove_reference&lt;T&gt;::type&amp;&amp;&gt;(arg);
+	}
+	
+	
+	// forward
+	template &lt;typename T&gt;
+	T&amp;&amp; forward(typename remove_reference&lt;T&gt;::type&amp; arg) {
+	    return static_cast&lt;T&amp;&amp;&gt;(arg);
+	}
+	
+	// swap
+	template &lt;typename T&gt;
+	void swap(T&amp; a, T&amp; b) {
+	    T tmp = maple::move(a);
+	    a = maple::move(b);
+	    b = maple::move(tmp);
+	}
+	
+}// namespace maple
+
+
+#endif
+]]></content>
+  </file>
+  <file name="vector.hpp" path="include/maple/vector.hpp">
+    <content><![CDATA[#ifndef MAPLE_VECTOR_HPP
+#define MAPLE_VECTOR_HPP
+
+#include &quot;maple/allocator.hpp&quot;
+#include &quot;maple/construct.hpp&quot;
+#include &quot;maple/uninitialized.hpp&quot;
+#include &quot;maple/iterator.hpp&quot;
+#include &quot;maple/util.hpp&quot;
+
+namespace maple {
+
+template &lt;typename T&gt;
+class vector {
+public:
+    using value_type      = T;
+    using iterator        = T*;
+    using const_iterator  = const T*;
+    using reference       = T&amp;;
+    using const_reference = const T&amp;;
+    using size_type       = size_t;
+
+    // ����/����
+    vector() : data_(nullptr), size_(0), capacity_(0) {}
+
+    explicit vector(size_t n, const T&amp; val = T()) {
+        data_ = alloc_.allocate(n);
+        maple::uninitialized_fill(data_, data_ + n, val);
+        size_ = n;
+        capacity_ = n;
+    }
+
+    ~vector() {
+        maple::destroy(data_, data_ + size_);
+        alloc_.deallocate(data_, capacity_);
+    }
+
+    // ����
+    size_t size()     const { return size_; }
+    size_t capacity() const { return capacity_; }
+    bool   empty()    const { return size_ == 0; }
+
+    void reserve(size_t new_cap) {
+        if (new_cap &lt;= capacity_) return;
+
+        T* new_data = alloc_.allocate(new_cap);
+        maple::uninitialized_copy(data_, data_ + size_, new_data);
+        maple::destroy(data_, data_ + size_);
+
+        if (data_) {
+            alloc_.deallocate(data_, capacity_);
+        }
+
+        data_ = new_data;
+        capacity_ = new_cap;
+    }
+
+    // Ԫ�ط��� 
+    T&amp;       operator[](size_t i)       { return data_[i]; }
+    const T&amp; operator[](size_t i) const { return data_[i]; }
+    T&amp; front() { return data_[0]; }
+    T&amp; back()  { return data_[size_ - 1]; }
+    T* data()  { return data_; }
+
+    // ������
+    iterator       begin()       { return data_; }
+    const_iterator begin() const { return data_; }
+    iterator       end()         { return data_ + size_; }
+    const_iterator end()   const { return data_ + size_; }
+
+    // �޸�
+    void push_back(const T&amp; val) {
+        if (size_ == capacity_) {
+            size_t new_cap = capacity_ == 0 ? 1 : capacity_ * 2;
+            reserve(new_cap);
+        }
+        maple::construct(data_ + size_, val);
+        ++size_;
+    }
+
+    void push_back(T&amp;&amp; val) {
+        if (size_ == capacity_) {
+            size_t new_cap = capacity_ == 0 ? 1 : capacity_ * 2;
+            reserve(new_cap);
+        }
+        maple::construct(data_ + size_, maple::move(val));
+        ++size_;
+    }
+
+    template &lt;typename... Args&gt;
+    void emplace_back(Args&amp;&amp;... args) {
+        if (size_ == capacity_) {
+            size_t new_cap = capacity_ == 0 ? 1 : capacity_ * 2;
+            reserve(new_cap);
+        }
+        maple::construct(data_ + size_, maple::forward&lt;Args&gt;(args)...);
+        ++size_;
+    }
+
+    void pop_back() {
+        maple::destroy(data_ + size_ - 1);
+        --size_;
+    }
+
+    iterator insert(iterator pos, const T&amp; val) {
+        size_t offset = pos - begin();
+        if (size_ == capacity_) {
+            size_t new_cap = capacity_ == 0 ? 1 : capacity_ * 2;
+            reserve(new_cap);
+        }
+        pos = begin() + offset;
+
+        for (auto it = end(); it &gt; pos; --it) {
+            maple::construct(it, maple::move(*(it - 1)));
+            maple::destroy(it - 1);
+        }
+        maple::construct(pos, val);
+        ++size_;
+        return pos;
+    }
+
+    iterator erase(iterator pos) {
+        if (pos == end()) return end();
+
+        for (auto it = pos + 1; it != end(); ++it) {
+            *(it - 1) = maple::move(*it);
+        }
+        pop_back();
+        return pos;
+    }
+
+    void clear() {
+        maple::destroy(data_, data_ + size_);
+        size_ = 0;
+    }
+
+    // ����/�ƶ� 
+    vector(const vector&amp; other) {
+        data_ = alloc_.allocate(other.capacity_);
+        maple::uninitialized_copy(other.data_, other.data_ + other.size_, data_);
+        size_ = other.size_;
+        capacity_ = other.capacity_;
+    }
+
+    vector(vector&amp;&amp; other) noexcept
+        : data_(other.data_)
+        , size_(other.size_)
+        , capacity_(other.capacity_) {
+        other.data_ = nullptr;
+        other.size_ = 0;
+        other.capacity_ = 0;
+    }
+
+    vector&amp; operator=(const vector&amp; other) {
+        if (this != &amp;other) {
+            maple::destroy(data_, data_ + size_);
+
+            if (capacity_ &lt; other.size_) {
+                alloc_.deallocate(data_, capacity_);
+                data_ = alloc_.allocate(other.size_);
+                capacity_ = other.size_;
+            }
+
+            maple::uninitialized_copy(other.data_, other.data_ + other.size_, data_);
+            size_ = other.size_;
+        }
+        return *this;
+    }
+
+    vector&amp; operator=(vector&amp;&amp; other) noexcept {
+        if (this != &amp;other) {
+            maple::destroy(data_, data_ + size_);
+            if (data_) alloc_.deallocate(data_, capacity_);
+
+            data_ = other.data_;
+            size_ = other.size_;
+            capacity_ = other.capacity_;
+
+            other.data_ = nullptr;
+            other.size_ = 0;
+            other.capacity_ = 0;
+        }
+        return *this;
+    }
+
+    void swap(vector&amp; other) noexcept {
+        maple::swap(data_, other.data_);
+        maple::swap(size_, other.size_);
+        maple::swap(capacity_, other.capacity_);
+    }
+
+private:
+    T*     data_      = nullptr;
+    size_t size_      = 0;
+    size_t capacity_  = 0;
+    allocator&lt;T&gt; alloc_;
+};
+
+} // namespace maple
+
+#endif
+]]></content>
+  </file>
+  <file name="weak_ptr.hpp" path="include/maple/weak_ptr.hpp">
+    <content><![CDATA[#ifndef MAPLE_WEAK_PTR_HPP
+#define MAPLE_WEAK_PTR_HPP
+
+#include &quot;maple/shared_ptr.hpp&quot;
+
+namespace maple {
+
+template &lt;typename T&gt;
+	class weak_ptr {
+	public:
+	    weak_ptr() : ptr_(nullptr), ref_count_(nullptr) {}
+	
+	    weak_ptr(const shared_ptr&lt;T&gt;&amp; sp)
+	        : ptr_(sp.get()), ref_count_(sp.ref_count_ptr()) {}
+	
+	    weak_ptr(const weak_ptr&amp; other)
+	        : ptr_(other.ptr_), ref_count_(other.ref_count_) {}
+	
+	    weak_ptr(weak_ptr&amp;&amp; other) noexcept
+	        : ptr_(other.ptr_), ref_count_(other.ref_count_) {
+	        other.ptr_ = nullptr;
+	        other.ref_count_ = nullptr;
+	    }
+	
+	    weak_ptr&amp; operator=(const weak_ptr&amp; other) {
+	        if (this != &amp;other) {
+	            ptr_ = other.ptr_;
+	            ref_count_ = other.ref_count_;
+	        }
+	        return *this;
+	    }
+	
+	    weak_ptr&amp; operator=(weak_ptr&amp;&amp; other) noexcept {
+	        if (this != &amp;other) {
+	            ptr_ = other.ptr_;
+	            ref_count_ = other.ref_count_;
+	            other.ptr_ = nullptr;
+	            other.ref_count_ = nullptr;
+	        }
+	        return *this;
+	    }
+	
+	    shared_ptr&lt;T&gt; lock() const {
+	        if (expired()) return shared_ptr&lt;T&gt;();
+	        return shared_ptr&lt;T&gt;(*this);
+	    }
+	
+	    bool expired() const {
+	        return ref_count_ == nullptr || ref_count_-&gt;load() == 0;
+	    }
+	
+	    void reset() {
+	        ptr_ = nullptr;
+	        ref_count_ = nullptr;
+	    }
+	
+	    friend class shared_ptr&lt;T&gt;;
+	
+	private:
+	    T* ptr_;
+	    std::atomic&lt;size_t&gt;* ref_count_;
+};
+
+} // namespace maple
+
+#endif
+]]></content>
+  </file>
+</project>

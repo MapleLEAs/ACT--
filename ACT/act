@@ -1,0 +1,162 @@
+#!/bin/bash
+
+show_help() {
+    echo "ACT - 机场协同监控系统快捷工具"
+    echo ""
+    echo "用法: act [命令]"
+    echo ""
+    echo "命令:"
+    echo "  default    显示默认访问地址和账号密码"
+    echo "  status     显示服务状态"
+    echo "  logs       查看应用日志"
+    echo "  restart    重启所有服务"
+    echo "  stop       停止所有服务"
+    echo "  start      启动所有服务"
+    echo "  migrate    执行数据库迁移"
+    echo "  health     检查系统健康状态"
+    echo "  help       显示此帮助信息"
+    echo ""
+}
+
+get_server_ip() {
+    local ip=$(hostname -I | awk '{print $1}')
+    if [ -z "$ip" ]; then
+        ip=$(curl -s ifconfig.me 2>/dev/null || curl -s icanhazip.com 2>/dev/null || echo "127.0.0.1")
+    fi
+    echo "$ip"
+}
+
+show_default() {
+    local ip=$(get_server_ip)
+    echo ""
+    echo "╔══════════════════════════════════════════════════════════════════════╗"
+    echo "║                    ACT 机场协同监控系统 - 访问信息                     ║"
+    echo "╚══════════════════════════════════════════════════════════════════════╝"
+    echo ""
+    echo "【服务器地址】"
+    echo "┌────────────────────────────────────────────────────────────────────┐"
+    echo "│  IP地址: $ip                                                       │"
+    echo "└────────────────────────────────────────────────────────────────────┘"
+    echo ""
+    echo "【服务访问地址】"
+    echo "┌────────────────────────────────────────────────────────────────────┐"
+    echo "│  Django管理后台:    http://$ip:8000/admin/                          │"
+    echo "│  API健康检查:       http://$ip:8000/api/health/                     │"
+    echo "│  设备API:           http://$ip:8000/api/devices/                    │"
+    echo "│  告警API:           http://$ip:8000/api/alarms/                     │"
+    echo "│  Neo4j管理界面:     http://$ip:7474/                                │"
+    echo "│  MySQL:             $ip:3306                                        │"
+    echo "│  Redis:             $ip:6379                                        │"
+    echo "│  MongoDB:           $ip:27017                                       │"
+    echo "└────────────────────────────────────────────────────────────────────┘"
+    echo ""
+    echo "【账号密码】"
+    echo "┌────────────────────────────────────────────────────────────────────┐"
+    echo "│  Django管理员:      用户名: admin          密码: admin123456        │"
+    echo "│  MySQL:             用户名: atc_user       密码: atc_password_2026  │"
+    echo "│  MySQL root:        用户名: root           密码: root_password_2026 │"
+    echo "│  Neo4j:             用户名: neo4j          密码: neo4j_password_2026│"
+    echo "└────────────────────────────────────────────────────────────────────┘"
+    echo ""
+    echo "【服务状态】"
+    echo "┌────────────────────────────────────────────────────────────────────┐"
+    if [ -f "docker-compose.yml" ]; then
+        docker-compose ps --format "table {{.Name}}\t{{.State}}\t{{.Ports}}" 2>/dev/null || echo "请确保docker-compose.yml存在且Docker已启动"
+    else
+        echo "docker-compose.yml 未找到"
+    fi
+    echo "└────────────────────────────────────────────────────────────────────┘"
+    echo ""
+}
+
+show_status() {
+    echo ""
+    echo "【服务状态】"
+    echo "────────────────────────────────────────────────────────────────────"
+    if [ -f "docker-compose.yml" ]; then
+        docker-compose ps
+        echo ""
+        echo "【资源使用】"
+        echo "────────────────────────────────────────────────────────────────────"
+        docker stats --no-stream
+    else
+        echo "docker-compose.yml 未找到"
+    fi
+}
+
+show_logs() {
+    echo ""
+    echo "【应用日志】"
+    echo "────────────────────────────────────────────────────────────────────"
+    docker-compose logs app --tail 50
+}
+
+restart_services() {
+    echo "正在重启所有服务..."
+    docker-compose restart
+    echo "服务已重启"
+}
+
+stop_services() {
+    echo "正在停止所有服务..."
+    docker-compose stop
+    echo "服务已停止"
+}
+
+start_services() {
+    echo "正在启动所有服务..."
+    docker-compose up -d
+    echo "服务已启动"
+}
+
+run_migrate() {
+    echo "正在执行数据库迁移..."
+    docker-compose exec app python manage.py makemigrations --noinput
+    docker-compose exec app python manage.py migrate --noinput
+    docker-compose exec app python manage.py collectstatic --noinput
+    echo "迁移完成"
+}
+
+check_health() {
+    echo "【健康检查】"
+    echo "────────────────────────────────────────────────────────────────────"
+    curl -s http://localhost:8000/api/health/ | python3 -m json.tool 2>/dev/null || curl -s http://localhost:8000/api/health/
+}
+
+case "$1" in
+    "default")
+        show_default
+        ;;
+    "status")
+        show_status
+        ;;
+    "logs")
+        show_logs
+        ;;
+    "restart")
+        restart_services
+        ;;
+    "stop")
+        stop_services
+        ;;
+    "start")
+        start_services
+        ;;
+    "migrate")
+        run_migrate
+        ;;
+    "health")
+        check_health
+        ;;
+    "help"|"-h"|"--help")
+        show_help
+        ;;
+    *)
+        if [ -z "$1" ]; then
+            show_default
+        else
+            echo "未知命令: $1"
+            echo "使用 act help 查看帮助"
+        fi
+        ;;
+esac

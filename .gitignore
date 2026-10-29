@@ -1,0 +1,68 @@
+# === Python ===
+__pycache__/
+*.py[cod]
+*.pyo
+*.egg-info/
+.eggs/
+*.egg
+
+# === Virtual Environment ===
+venv/
+env/
+ENV/
+.venv/
+
+# === Django ===
+db.sqlite3
+db.sqlite3-journal
+*.log
+staticfiles/
+media/
+local_settings.py
+
+# === Environment ===
+.env
+.env.*
+!.env.example
+
+# === Node / Frontend ===
+node_modules/
+dist/
+dist-ssr/
+*.local
+
+# === IDE / Editor ===
+.vscode/*
+!.vscode/extensions.json
+.idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+.DS_Store
+
+# === OS ===
+Thumbs.db
+
+# === Project specific ===
+*.pyc
+__pycache__
+ACT/venv/
+ACT/frontend/node_modules/
+ACT/frontend/dist/
+ACT/frontend/.vscode/
+ACT/_backend_run3.log
+ACT/_probe2.json
+ACT/repomix-output.xml
+ACT/db.sqlite3
+ACT/.deployignore
+ACT/test_local.ps1
+ACT/test_fiware.py
+ACT/test_hybrid_model.py
+ACT/test_performance.py
+ACT/fix_trend.py
+ACT/generate_alarm_data.py
+ACT/create_alarm_rule.py
+ACT/create_test_data.py
+ACT/init_admin_and_reset.py

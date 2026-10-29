@@ -1,0 +1,307 @@
+{
+  "alarms": [
+    {
+      "id": 1,
+      "alarm_id": "ALM-20260318-001",
+      "device_id": "ILS-001",
+      "device_name": "空管一次雷达",
+      "title": "通信中断",
+      "level": "INFO",
+      "status": "RESOLVED",
+      "raised_at": "2026-03-18 06:14:31"
+    },
+    {
+      "id": 2,
+      "alarm_id": "ALM-20260317-002",
+      "device_id": "ATC-001",
+      "device_name": "空管一次雷达",
+      "title": "温度过高",
+      "level": "INFO",
+      "status": "ACK",
+      "raised_at": "2026-03-17 21:14:31"
+    },
+    {
+      "id": 3,
+      "alarm_id": "ALM-20260319-003",
+      "device_id": "VHF-001",
+      "device_name": "空管一次雷达",
+      "title": "信号丢失",
+      "level": "INFO",
+      "status": "PROCESSING",
+      "raised_at": "2026-03-19 06:14:31"
+    },
+    {
+      "id": 4,
+      "alarm_id": "ALM-20260319-004",
+      "device_id": "ILS-001",
+      "device_name": "空管一次雷达",
+      "title": "通信中断",
+      "level": "WARNING",
+      "status": "ACK",
+      "raised_at": "2026-03-19 18:14:31"
+    },
+    {
+      "id": 5,
+      "alarm_id": "ALM-20260317-005",
+      "device_id": "ATC-001",
+      "device_name": "仪表着陆航向台",
+      "title": "温度过高",
+      "level": "WARNING",
+      "status": "NEW",
+      "raised_at": "2026-03-17 09:14:31"
+    },
+    {
+      "id": 6,
+      "alarm_id": "ALM-20260317-006",
+      "device_id": "VHF-001",
+      "device_name": "空管一次雷达",
+      "title": "电源异常",
+      "level": "WARNING",
+      "status": "RESOLVED",
+      "raised_at": "2026-03-17 23:14:31"
+    },
+    {
+      "id": 7,
+      "alarm_id": "ALM-20260319-007",
+      "device_id": "ATC-001",
+      "device_name": "空管一次雷达",
+      "title": "电源异常",
+      "level": "CRITICAL",
+      "status": "NEW",
+      "raised_at": "2026-03-19 14:14:31"
+    },
+    {
+      "id": 8,
+      "alarm_id": "ALM-20260318-008",
+      "device_id": "ILS-001",
+      "device_name": "甚高频通信设备1号",
+      "title": "信号丢失",
+      "level": "CRITICAL",
+      "status": "NEW",
+      "raised_at": "2026-03-18 01:14:31"
+    },
+    {
+      "id": 9,
+      "alarm_id": "ALM-20260319-009",
+      "device_id": "VHF-001",
+      "device_name": "空管一次雷达",
+      "title": "信号丢失",
+      "level": "CRITICAL",
+      "status": "NEW",
+      "raised_at": "2026-03-19 11:14:31"
+    },
+    {
+      "id": 10,
+      "alarm_id": "ALM-20260318-010",
+      "device_id": "ILS-001",
+      "device_name": "甚高频通信设备1号",
+      "title": "温度过高",
+      "level": "WARNING",
+      "status": "NEW",
+      "raised_at": "2026-03-18 08:14:31"
+    },
+    {
+      "id": 11,
+      "alarm_id": "ALM-20260318-011",
+      "device_id": "ILS-001",
+      "device_name": "仪表着陆航向台",
+      "title": "信号丢失",
+      "level": "WARNING",
+      "status": "ACK",
+      "raised_at": "2026-03-18 03:14:31"
+    },
+    {
+      "id": 12,
+      "alarm_id": "ALM-20260319-012",
+      "device_id": "VHF-001",
+      "device_name": "仪表着陆航向台",
+      "title": "信号丢失",
+      "level": "INFO",
+      "status": "PROCESSING",
+      "raised_at": "2026-03-19 04:14:31"
+    },
+    {
+      "id": 13,
+      "alarm_id": "ALM-20260317-013",
+      "device_id": "ILS-001",
+      "device_name": "空管一次雷达",
+      "title": "信号丢失",
+      "level": "CRITICAL",
+      "status": "PROCESSING",
+      "raised_at": "2026-03-17 07:14:31"
+    },
+    {
+      "id": 14,
+      "alarm_id": "ALM-20260317-014",
+      "device_id": "ATC-001",
+      "device_name": "空管一次雷达",
+      "title": "温度过高",
+      "level": "WARNING",
+      "status": "RESOLVED",
+      "raised_at": "2026-03-17 18:14:31"
+    },
+    {
+      "id": 15,
+      "alarm_id": "ALM-20260318-015",
+      "device_id": "ATC-001",
+      "device_name": "仪表着陆航向台",
+      "title": "信号丢失",
+      "level": "CRITICAL",
+      "status": "PROCESSING",
+      "raised_at": "2026-03-18 20:14:31"
+    },
+    {
+      "id": 16,
+      "alarm_id": "ALM-20260318-016",
+      "device_id": "ILS-001",
+      "device_name": "甚高频通信设备1号",
+      "title": "通信中断",
+      "level": "CRITICAL",
+      "status": "PROCESSING",
+      "raised_at": "2026-03-18 20:14:31"
+    },
+    {
+      "id": 17,
+      "alarm_id": "ALM-20260317-017",
+      "device_id": "VHF-001",
+      "device_name": "甚高频通信设备1号",
+      "title": "温度过高",
+      "level": "INFO",
+      "status": "RESOLVED",
+      "raised_at": "2026-03-17 16:14:31"
+    },
+    {
+      "id": 18,
+      "alarm_id": "ALM-20260316-018",
+      "device_id": "ILS-001",
+      "device_name": "甚高频通信设备1号",
+      "title": "通信中断",
+      "level": "CRITICAL",
+      "status": "PROCESSING",
+      "raised_at": "2026-03-16 22:14:31"
+    },
+    {
+      "id": 19,
+      "alarm_id": "ALM-20260318-019",
+      "device_id": "ILS-001",
+      "device_name": "空管一次雷达",
+      "title": "温度过高",
+      "level": "CRITICAL",
+      "status": "ACK",
+      "raised_at": "2026-03-18 16:14:31"
+    },
+    {
+      "id": 20,
+      "alarm_id": "ALM-20260318-020",
+      "device_id": "VHF-001",
+      "device_name": "甚高频通信设备1号",
+      "title": "信号丢失",
+      "level": "INFO",
+      "status": "RESOLVED",
+      "raised_at": "2026-03-18 14:14:31"
+    },
+    {
+      "id": 21,
+      "alarm_id": "ALM-20260317-021",
+      "device_id": "VHF-001",
+      "device_name": "仪表着陆航向台",
+      "title": "信号丢失",
+      "level": "INFO",
+      "status": "ACK",
+      "raised_at": "2026-03-17 16:14:31"
+    },
+    {
+      "id": 22,
+      "alarm_id": "ALM-20260317-022",
+      "device_id": "ATC-001",
+      "device_name": "仪表着陆航向台",
+      "title": "电源异常",
+      "level": "INFO",
+      "status": "NEW",
+      "raised_at": "2026-03-17 11:14:31"
+    },
+    {
+      "id": 23,
+      "alarm_id": "ALM-20260318-023",
+      "device_id": "VHF-001",
+      "device_name": "空管一次雷达",
+      "title": "电源异常",
+      "level": "INFO",
+      "status": "PROCESSING",
+      "raised_at": "2026-03-18 19:14:31"
+    },
+    {
+      "id": 24,
+      "alarm_id": "ALM-20260319-024",
+      "device_id": "ATC-001",
+      "device_name": "空管一次雷达",
+      "title": "温度过高",
+      "level": "CRITICAL",
+      "status": "PROCESSING",
+      "raised_at": "2026-03-19 06:14:31"
+    },
+    {
+      "id": 25,
+      "alarm_id": "ALM-20260318-025",
+      "device_id": "ILS-001",
+      "device_name": "空管一次雷达",
+      "title": "温度过高",
+      "level": "CRITICAL",
+      "status": "ACK",
+      "raised_at": "2026-03-18 04:14:31"
+    },
+    {
+      "id": 26,
+      "alarm_id": "ALM-20260317-026",
+      "device_id": "VHF-001",
+      "device_name": "甚高频通信设备1号",
+      "title": "通信中断",
+      "level": "CRITICAL",
+      "status": "RESOLVED",
+      "raised_at": "2026-03-17 06:14:31"
+    },
+    {
+      "id": 27,
+      "alarm_id": "ALM-20260318-027",
+      "device_id": "ATC-001",
+      "device_name": "甚高频通信设备1号",
+      "title": "电源异常",
+      "level": "CRITICAL",
+      "status": "ACK",
+      "raised_at": "2026-03-18 09:14:31"
+    },
+    {
+      "id": 28,
+      "alarm_id": "ALM-20260319-028",
+      "device_id": "VHF-001",
+      "device_name": "空管一次雷达",
+      "title": "通信中断",
+      "level": "CRITICAL",
+      "status": "NEW",
+      "raised_at": "2026-03-19 16:14:31"
+    },
+    {
+      "id": 29,
+      "alarm_id": "ALM-20260319-029",
+      "device_id": "ILS-001",
+      "device_name": "甚高频通信设备1号",
+      "title": "电源异常",
+      "level": "CRITICAL",
+      "status": "RESOLVED",
+      "raised_at": "2026-03-19 12:14:31"
+    },
+    {
+      "id": 30,
+      "alarm_id": "ALM-20260317-030",
+      "device_id": "VHF-001",
+      "device_name": "空管一次雷达",
+      "title": "电源异常",
+      "level": "CRITICAL",
+      "status": "RESOLVED",
+      "raised_at": "2026-03-17 09:14:31"
+    }
+  ],
+  "total": 30,
+  "page": 1,
+  "page_size": 20
+}

@@ -1,0 +1,26 @@
+html, body, #app {
+  height: 100%;
+  width: 100%;
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial,
+    'Noto Sans', sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol',
+    'Noto Color Emoji';
+}
+
+/* ===== ATC Monitor 项目专属主题色（空管/雷达青蓝）=====
+   修改此处即可全站换色：图标(currentColor)、主按钮、菜单选中态等同步生效 */
+:root {
+  --atc-primary: #0b8ec2;
+  --el-color-primary: var(--atc-primary);
+  --el-color-primary-light-3: color-mix(in srgb, var(--atc-primary) 70%, #ffffff);
+  --el-color-primary-light-5: color-mix(in srgb, var(--atc-primary) 50%, #ffffff);
+  --el-color-primary-light-7: color-mix(in srgb, var(--atc-primary) 30%, #ffffff);
+  --el-color-primary-light-8: color-mix(in srgb, var(--atc-primary) 20%, #ffffff);
+  --el-color-primary-light-9: color-mix(in srgb, var(--atc-primary) 10%, #ffffff);
+  --el-color-primary-dark-2: color-mix(in srgb, var(--atc-primary) 80%, #000000);
+}

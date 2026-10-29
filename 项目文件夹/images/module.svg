@@ -1,0 +1,40 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 320" font-family="-apple-system,Segoe UI,Microsoft YaHei,sans-serif">
+  <rect x="0" y="0" width="720" height="320" fill="#ffffff"/>
+  <text x="360" y="30" text-anchor="middle" font-size="18" font-weight="700" fill="#1f2933">核心模块划分</text>
+
+  <g font-size="13" fill="#1f2933">
+    <!-- Core -->
+    <rect x="40" y="60" width="300" height="80" rx="8" fill="#eef4ff" stroke="#2563eb" stroke-width="1.5"/>
+    <text x="60" y="86" font-weight="700" fill="#1d4ed8">Core 模块（通用底座）</text>
+    <text x="60" y="108">抽象模型 BaseModel</text>
+    <text x="60" y="126">标准化响应 / 全局异常</text>
+    <text x="60" y="144">NGSI-LD 转换器</text>
+
+    <!-- Monitor -->
+    <rect x="380" y="60" width="300" height="80" rx="8" fill="#eef4ff" stroke="#2563eb" stroke-width="1.5"/>
+    <text x="400" y="86" font-weight="700" fill="#1d4ed8">Monitor 模块（业务）</text>
+    <text x="400" y="108">设备管理 Device</text>
+    <text x="400" y="126">告警引擎 AlarmEngine</text>
+    <text x="400" y="144">状态日志 StatusLog</text>
+
+    <!-- Frontend -->
+    <rect x="40" y="170" width="300" height="70" rx="8" fill="#eef4ff" stroke="#2563eb" stroke-width="1.5"/>
+    <text x="60" y="196" font-weight="700" fill="#1d4ed8">Frontend 模块（Vue 3）</text>
+    <text x="60" y="218">布局 / 路由 / 页面组件</text>
+    <text x="60" y="236">ECharts 时序 · Three.js 3D</text>
+
+    <!-- Data Resources -->
+    <rect x="380" y="170" width="300" height="70" rx="8" fill="#eef4ff" stroke="#2563eb" stroke-width="1.5"/>
+    <text x="400" y="196" font-weight="700" fill="#1d4ed8">Data Resources 模块</text>
+    <text x="400" y="218">模拟数据生成 generate_data</text>
+    <text x="400" y="236">数据管理 / 字段规范</text>
+  </g>
+
+  <g stroke="#94a3b8" stroke-width="2" fill="none">
+    <path d="M340 100 C360 100 360 205 380 205"/>
+    <path d="M376 205 L380 205"/>
+    <path d="M190 140 L190 168"/>
+    <path d="M530 140 L530 168"/>
+  </g>
+  <text x="360" y="160" text-anchor="middle" font-size="12" fill="#6b7785">模块间通过 API / 事件解耦协作</text>
+</svg>

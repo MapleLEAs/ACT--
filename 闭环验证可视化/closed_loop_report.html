@@ -1,0 +1,147 @@
+
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <title>最小闭环验证可视化报告</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f4f4f9; color: #333; margin: 0; padding: 20px; }
+        .container { max_width: 1000px; margin: 0 auto; background: white; padding: 30px; border-radius: 10px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+        h1 { text-align: center; color: #2c3e50; }
+        h2 { border-bottom: 2px solid #3498db; padding-bottom: 10px; margin-top: 30px; }
+        .chart-container { position: relative; height: 300px; width: 100%; margin-bottom: 20px; }
+        .status-box { display: flex; gap: 10px; margin-bottom: 10px; }
+        .status-item { padding: 5px 10px; border-radius: 4px; font-size: 0.9em; font-weight: bold; }
+        .normal { background-color: #d4edda; color: #155724; }
+        .alarm { background-color: #f8d7da; color: #721c24; }
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; font-size: 0.9em; }
+        th, td { padding: 8px; text-align: center; border-bottom: 1px solid #ddd; }
+        th { background-color: #f2f2f2; }
+        .summary { display: flex; justify-content: space-around; background: #eef2f5; padding: 15px; border-radius: 8px; margin-bottom: 20px; }
+        .summary div { text-align: center; }
+        .summary strong { display: block; font-size: 1.5em; color: #3498db; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>最小闭环系统 - 验证可视化报告</h1>
+        <p style="text-align: center; color: #666;">生成时间: 2026-02-13 15:27:12</p>
+        
+        <div class="summary">
+            <div><strong>2</strong>测试设备数</div>
+            <div><strong>100</strong>总模拟数据点</div>
+            <div><strong>6</strong>触发告警次数</div>
+        </div>
+
+        <!-- VHF SECTION -->
+        <h2>1. VHF 通信设备闭环验证</h2>
+        <p>验证规则：信号强度 < -85 dBm 或 链路断开 -> 触发告警</p>
+        <div class="chart-container">
+            <canvas id="vhfChart"></canvas>
+        </div>
+        
+        <!-- ILS SECTION -->
+        <h2>2. ILS 导航设备闭环验证</h2>
+        <p>验证规则：引导偏差绝对值 > 1.5 度 -> 触发告警</p>
+        <div class="chart-container">
+            <canvas id="ilsChart"></canvas>
+        </div>
+    </div>
+
+    <script>
+        // VHF Data
+        const vhfCtx = document.getElementById('vhfChart').getContext('2d');
+        const vhfData = [];
+        const vhfLabels = vhfData.map(d => d.time + 'm');
+        const vhfSignals = vhfData.map(d => d.value);
+        const vhfColors = vhfData.map(d => d.alarm ? 'red' : '#3498db');
+
+        new Chart(vhfCtx, {
+            type: 'line',
+            data: {
+                labels: vhfLabels,
+                datasets: [
+                    {
+                        label: '信号强度 (dBm)',
+                        data: vhfSignals,
+                        borderColor: '#3498db',
+                        segment: {
+                            borderColor: ctx => ctx.p0.parsed.y < -85 || ctx.p1.parsed.y < -85 ? 'red' : '#3498db'
+                        },
+                        tension: 0.4
+                    },
+                    {
+                        label: '告警阈值 (-85)',
+                        data: Array(vhfData.length).fill(-85),
+                        borderColor: 'rgba(255, 99, 132, 0.5)',
+                        borderDash: [5, 5],
+                        pointRadius: 0,
+                        fill: false
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    annotation: {
+                        annotations: {
+                            line1: {
+                                type: 'line',
+                                yMin: -85,
+                                yMax: -85,
+                                borderColor: 'rgb(255, 99, 132)',
+                                borderWidth: 2,
+                            }
+                        }
+                    }
+                }
+            }
+        });
+
+        // ILS Data
+        const ilsCtx = document.getElementById('ilsChart').getContext('2d');
+        const ilsData = [{"time": 0, "value": 0.45, "status": "NORMAL", "alarm": false, "power": 15.0}, {"time": 1, "value": -0.41, "status": "NORMAL", "alarm": false, "power": 15.7}, {"time": 2, "value": 0.09, "status": "NORMAL", "alarm": false, "power": 14.3}, {"time": 3, "value": 0.37, "status": "NORMAL", "alarm": false, "power": 14.4}, {"time": 4, "value": 0.38, "status": "NORMAL", "alarm": false, "power": 15.6}, {"time": 5, "value": 0.39, "status": "NORMAL", "alarm": false, "power": 16.0}, {"time": 6, "value": 0.22, "status": "NORMAL", "alarm": false, "power": 15.0}, {"time": 7, "value": 0.25, "status": "NORMAL", "alarm": false, "power": 14.1}, {"time": 8, "value": -0.28, "status": "NORMAL", "alarm": false, "power": 15.6}, {"time": 9, "value": 0.33, "status": "NORMAL", "alarm": false, "power": 14.8}, {"time": 10, "value": 2.02, "status": "NORMAL", "alarm": true, "power": 14.5}, {"time": 11, "value": 2.05, "status": "NORMAL", "alarm": true, "power": 14.3}, {"time": 12, "value": 2.09, "status": "NORMAL", "alarm": true, "power": 15.8}, {"time": 13, "value": 2.36, "status": "NORMAL", "alarm": true, "power": 14.5}, {"time": 14, "value": 2.48, "status": "NORMAL", "alarm": true, "power": 14.4}, {"time": 15, "value": 2.18, "status": "NORMAL", "alarm": true, "power": 15.8}, {"time": 16, "value": 0.36, "status": "NORMAL", "alarm": false, "power": 14.3}, {"time": 17, "value": 0.45, "status": "NORMAL", "alarm": false, "power": 15.6}, {"time": 18, "value": -0.39, "status": "NORMAL", "alarm": false, "power": 15.2}, {"time": 19, "value": 0.34, "status": "NORMAL", "alarm": false, "power": 15.8}, {"time": 20, "value": 0.17, "status": "NORMAL", "alarm": false, "power": 15.5}, {"time": 21, "value": 0.41, "status": "NORMAL", "alarm": false, "power": 14.1}, {"time": 22, "value": -0.44, "status": "NORMAL", "alarm": false, "power": 14.6}, {"time": 23, "value": 0.1, "status": "NORMAL", "alarm": false, "power": 15.5}, {"time": 24, "value": -0.36, "status": "NORMAL", "alarm": false, "power": 15.1}, {"time": 25, "value": -0.12, "status": "NORMAL", "alarm": false, "power": 14.4}, {"time": 26, "value": 0.27, "status": "NORMAL", "alarm": false, "power": 15.9}, {"time": 27, "value": -0.4, "status": "NORMAL", "alarm": false, "power": 14.8}, {"time": 28, "value": -0.14, "status": "NORMAL", "alarm": false, "power": 14.5}, {"time": 29, "value": -0.43, "status": "NORMAL", "alarm": false, "power": 15.7}, {"time": 30, "value": -0.31, "status": "NORMAL", "alarm": false, "power": 15.0}, {"time": 31, "value": -0.34, "status": "NORMAL", "alarm": false, "power": 15.8}, {"time": 32, "value": 0.27, "status": "NORMAL", "alarm": false, "power": 14.1}, {"time": 33, "value": -0.27, "status": "NORMAL", "alarm": false, "power": 14.9}, {"time": 34, "value": -0.25, "status": "NORMAL", "alarm": false, "power": 15.6}, {"time": 35, "value": 0.22, "status": "NORMAL", "alarm": false, "power": 15.4}, {"time": 36, "value": -0.24, "status": "NORMAL", "alarm": false, "power": 14.7}, {"time": 37, "value": -0.04, "status": "NORMAL", "alarm": false, "power": 14.6}, {"time": 38, "value": 0.25, "status": "NORMAL", "alarm": false, "power": 15.5}, {"time": 39, "value": 0.02, "status": "NORMAL", "alarm": false, "power": 15.9}, {"time": 40, "value": -0.06, "status": "NORMAL", "alarm": false, "power": 15.7}, {"time": 41, "value": -0.26, "status": "NORMAL", "alarm": false, "power": 14.9}, {"time": 42, "value": -0.02, "status": "NORMAL", "alarm": false, "power": 14.8}, {"time": 43, "value": -0.15, "status": "NORMAL", "alarm": false, "power": 14.4}, {"time": 44, "value": 0.11, "status": "NORMAL", "alarm": false, "power": 14.4}, {"time": 45, "value": -0.49, "status": "NORMAL", "alarm": false, "power": 14.2}, {"time": 46, "value": 0.47, "status": "NORMAL", "alarm": false, "power": 15.5}, {"time": 47, "value": -0.32, "status": "NORMAL", "alarm": false, "power": 15.9}, {"time": 48, "value": 0.18, "status": "NORMAL", "alarm": false, "power": 14.5}, {"time": 49, "value": -0.15, "status": "NORMAL", "alarm": false, "power": 15.7}];
+        const ilsLabels = ilsData.map(d => d.time + 'm');
+        const ilsValues = ilsData.map(d => d.value);
+
+        new Chart(ilsCtx, {
+            type: 'line',
+            data: {
+                labels: ilsLabels,
+                datasets: [
+                    {
+                        label: '引导偏差 (Degree)',
+                        data: ilsValues,
+                        borderColor: '#2ecc71',
+                        segment: {
+                            borderColor: ctx => Math.abs(ctx.p0.parsed.y) > 1.5 || Math.abs(ctx.p1.parsed.y) > 1.5 ? 'red' : '#2ecc71'
+                        },
+                        tension: 0.4
+                    },
+                    {
+                        label: '正阈值 (+1.5)',
+                        data: Array(ilsData.length).fill(1.5),
+                        borderColor: 'rgba(255, 99, 132, 0.5)',
+                        borderDash: [5, 5],
+                        pointRadius: 0
+                    },
+                    {
+                        label: '负阈值 (-1.5)',
+                        data: Array(ilsData.length).fill(-1.5),
+                        borderColor: 'rgba(255, 99, 132, 0.5)',
+                        borderDash: [5, 5],
+                        pointRadius: 0
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false
+            }
+        });
+    </script>
+</body>
+</html>
+    

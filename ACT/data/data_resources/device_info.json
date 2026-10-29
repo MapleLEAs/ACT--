@@ -1,0 +1,38 @@
+[
+  {
+    "device_id": "VHF-001",
+    "device_type": "VHF",
+    "device_model": "THALES VHF-3000",
+    "location": "塔台通信室",
+    "manufacturer": "泰雷兹",
+    "install_time": "2023-01-14T16:00:00+00:00",
+    "protocol_version": "v2.1"
+  },
+  {
+    "device_id": "VHF-002",
+    "device_type": "VHF",
+    "device_model": "SIEMENS VHF-8000",
+    "location": "终端管制室",
+    "manufacturer": "西门子",
+    "install_time": "2022-08-09T16:00:00+00:00",
+    "protocol_version": "v1.8"
+  },
+  {
+    "device_id": "ILS-001",
+    "device_type": "ILS",
+    "device_model": "INDRA ILS-2000",
+    "location": "跑道18L",
+    "manufacturer": "因德拉",
+    "install_time": "2023-05-19T16:00:00+00:00",
+    "protocol_version": "v3.0"
+  },
+  {
+    "device_id": "ILS-002",
+    "device_type": "ILS",
+    "device_model": "THALES ILS-420",
+    "location": "跑道36R",
+    "manufacturer": "泰雷兹",
+    "install_time": "2022-12-04T16:00:00+00:00",
+    "protocol_version": "v2.5"
+  }
+]
